@@ -12,12 +12,12 @@ steps:
   - name: Run Flake Check
     command: nix flake check
 
-  - name: Check Rust Formatting
+  - name: Check Formatting
     command: nix develop -c cargo fmt --check
 
-  - name: Run Rust Clippy
+  - name: Run Clippy
     command: nix develop -c cargo clippy -- -D warnings
 
-  - name: Build Rust Project
+  - name: Build Project
     command: nix develop -c cargo build --release
 
