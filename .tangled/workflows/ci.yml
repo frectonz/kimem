@@ -1,0 +1,23 @@
+when:
+  - event: ["push"]
+    branch: ["main"]
+
+engine: "nixery"
+
+dependencies:
+  nixpkgs:
+    - nix
+
+steps:
+  - name: Run Flake Check
+    command: nix flake check
+
+  - name: Check Rust Formatting
+    command: nix develop -c cargo fmt --check
+
+  - name: Run Rust Clippy
+    command: nix develop -c cargo clippy -- -D warnings
+
+  - name: Build Rust Project
+    command: nix develop -c cargo build --release
+
