@@ -4,10 +4,6 @@ when:
 
 engine: "nixery"
 
-dependencies:
-  nixpkgs:
-    - nix
-
 steps:
   - name: Run Flake Check
     command: nix flake check
