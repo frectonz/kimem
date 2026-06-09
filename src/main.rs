@@ -28,6 +28,9 @@ async fn main() -> EyreResult<()> {
     dbg!(login.power);
     dbg!(login.unique_login_credentials);
 
+    let station_list_body = router.fetch_connected_devices().await?;
+    dbg!(station_list_body);
+
     Ok(())
 }
 
@@ -48,15 +51,35 @@ fn sha256(input: &str) -> String {
 }
 
 #[derive(Debug, Deserialize)]
+struct NonceBody {
+    random_login: BoxStr,
+}
+
+#[derive(Debug, Deserialize)]
 struct LoginBody {
     result: BoxStr,
     power: BoxStr,
     unique_login_credentials: BoxStr,
 }
 
-#[derive(Deserialize)]
-struct NonceBody {
-    random_login: BoxStr,
+#[allow(dead_code)]
+#[derive(Debug, Deserialize)]
+struct StationListBody {
+    station_list: Vec<ConnectedDevice>,
+}
+
+#[allow(dead_code)]
+#[derive(Debug, Deserialize)]
+struct ConnectedDevice {
+    connect_time: BoxStr,
+    ssid_index: BoxStr,
+    dev_type: BoxStr,
+    mac_addr: BoxStr,
+    hostname: BoxStr,
+    ip_addr: BoxStr,
+    ipv6: BoxStr,
+    ipv6_local: BoxStr,
+    ip_type: BoxStr,
 }
 
 impl Router {
@@ -106,6 +129,21 @@ impl Router {
             .send()
             .await?
             .json::<LoginBody>()
+            .await?;
+
+        Ok(body)
+    }
+
+    async fn fetch_connected_devices(&self) -> EyreResult<StationListBody> {
+        let address = self.address.as_str();
+        let url = format!("{address}/reqproc/proc_get?cmd=station_list&isTest=false");
+
+        let body = self
+            .client
+            .get(url)
+            .send()
+            .await?
+            .json::<StationListBody>()
             .await?;
 
         Ok(body)
