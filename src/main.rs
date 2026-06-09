@@ -1,5 +1,7 @@
+use base64::Engine;
 use clap::Parser;
 use serde::Deserialize;
+use sha2::Digest;
 use std::net::IpAddr;
 
 type BoxStr = Box<str>;
@@ -20,8 +22,10 @@ async fn main() {
     let args = Args::parse();
     let router: Router = args.into();
 
-    let nonce = router.fetch_nonce().await;
-    dbg!(nonce);
+    let login = router.login().await;
+    dbg!(login.result);
+    dbg!(login.power);
+    dbg!(login.unique_login_credentials);
 }
 
 struct Router {
@@ -43,6 +47,22 @@ impl From<Args> for Router {
             password: args.password,
         }
     }
+}
+
+fn b64(input: &str) -> String {
+    base64::prelude::BASE64_STANDARD.encode(input)
+}
+
+fn sha256(input: &str) -> String {
+    let hash = sha2::Sha256::digest(input);
+    hex::encode(hash)
+}
+
+#[derive(Debug, Deserialize)]
+struct LoginBody {
+    result: BoxStr,
+    power: BoxStr,
+    unique_login_credentials: BoxStr,
 }
 
 impl Router {
@@ -68,5 +88,30 @@ impl Router {
             .unwrap();
 
         nonce.random_login
+    }
+
+    async fn login(&self) -> LoginBody {
+        let nonce = self.fetch_nonce().await;
+        let url = format!("{}/reqproc/proc_post", self.address);
+
+        self.client
+            .post(url)
+            .form(&[
+                ("username", b64(&self.username).as_str()),
+                (
+                    "password",
+                    &b64(&sha256(&format!("{nonce}{}", self.password))),
+                ),
+                ("goformId", "LOGIN"),
+                ("unique_login_credentials", "1"),
+                ("isTest", "false"),
+            ])
+            .header("Referer", self.address.clone())
+            .send()
+            .await
+            .unwrap()
+            .json::<LoginBody>()
+            .await
+            .unwrap()
     }
 }
