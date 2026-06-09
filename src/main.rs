@@ -5,6 +5,7 @@ use sha2::Digest;
 use std::net::IpAddr;
 
 type BoxStr = Box<str>;
+type EyreResult<T> = color_eyre::Result<T>;
 
 #[derive(Parser, Debug)]
 struct Args {
@@ -18,14 +19,16 @@ struct Args {
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> EyreResult<()> {
     let args = Args::parse();
-    let router: Router = args.into();
+    let router = Router::new(args)?;
 
-    let login = router.login().await;
+    let login = router.login().await?;
     dbg!(login.result);
     dbg!(login.power);
     dbg!(login.unique_login_credentials);
+
+    Ok(())
 }
 
 struct Router {
@@ -33,20 +36,6 @@ struct Router {
     address: String,
     username: String,
     password: String,
-}
-
-impl From<Args> for Router {
-    fn from(args: Args) -> Self {
-        Self {
-            client: reqwest::Client::builder()
-                .user_agent("Kimem CLI")
-                .build()
-                .unwrap(),
-            address: format!("http://{}", args.router),
-            username: args.username,
-            password: args.password,
-        }
-    }
 }
 
 fn b64(input: &str) -> String {
@@ -65,53 +54,60 @@ struct LoginBody {
     unique_login_credentials: BoxStr,
 }
 
-impl Router {
-    async fn fetch_nonce(&self) -> BoxStr {
-        #[derive(Deserialize)]
-        struct NonceBody {
-            random_login: BoxStr,
-        }
+#[derive(Deserialize)]
+struct NonceBody {
+    random_login: BoxStr,
+}
 
-        let url = format!(
-            "{}/reqproc/proc_get?cmd=get_random_login&isTest=false",
-            self.address
-        );
+impl Router {
+    fn new(args: Args) -> EyreResult<Self> {
+        let router = args.router;
+        Ok(Self {
+            client: reqwest::Client::builder().user_agent("Kimem CLI").build()?,
+            address: format!("http://{router}"),
+            username: args.username,
+            password: args.password,
+        })
+    }
+
+    async fn fetch_nonce(&self) -> EyreResult<BoxStr> {
+        let address = self.address.as_str();
+        let url = format!("{address}/reqproc/proc_get?cmd=get_random_login&isTest=false");
 
         let nonce = self
             .client
             .get(url)
             .send()
-            .await
-            .unwrap()
+            .await?
             .json::<NonceBody>()
-            .await
-            .unwrap();
+            .await?;
 
-        nonce.random_login
+        Ok(nonce.random_login)
     }
 
-    async fn login(&self) -> LoginBody {
-        let nonce = self.fetch_nonce().await;
-        let url = format!("{}/reqproc/proc_post", self.address);
+    async fn login(&self) -> EyreResult<LoginBody> {
+        let address = self.address.as_str();
+        let url = format!("{address}/reqproc/proc_post");
 
-        self.client
+        let password = self.password.as_str();
+        let nonce = self.fetch_nonce().await?;
+
+        let body = self
+            .client
             .post(url)
             .form(&[
                 ("username", b64(&self.username).as_str()),
-                (
-                    "password",
-                    &b64(&sha256(&format!("{nonce}{}", self.password))),
-                ),
+                ("password", &b64(&sha256(&format!("{nonce}{password}")))),
                 ("goformId", "LOGIN"),
                 ("unique_login_credentials", "1"),
                 ("isTest", "false"),
             ])
             .header("Referer", self.address.clone())
             .send()
-            .await
-            .unwrap()
+            .await?
             .json::<LoginBody>()
-            .await
-            .unwrap()
+            .await?;
+
+        Ok(body)
     }
 }
