@@ -1,6 +1,6 @@
 use base64::Engine;
 use clap::Parser;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use sha2::Digest;
 use std::net::IpAddr;
 
@@ -90,6 +90,26 @@ struct ImeiBody {
     imei: BoxStr,
 }
 
+#[allow(dead_code)]
+#[derive(Debug, Serialize)]
+struct FormBody<T: serde::Serialize> {
+    #[serde(rename = "goformId")]
+    goform_id: BoxStr,
+    #[serde(rename = "isTest")]
+    is_test: BoxStr,
+
+    #[serde(flatten)]
+    payload: T,
+}
+
+#[allow(dead_code)]
+#[derive(Debug, Serialize)]
+struct LoginFormBody {
+    username: BoxStr,
+    password: BoxStr,
+    unique_login_credentials: BoxStr,
+}
+
 impl Router {
     fn new(args: Args) -> EyreResult<Self> {
         let router = args.router;
@@ -131,28 +151,44 @@ impl Router {
         Ok(body)
     }
 
-    async fn login(&self) -> EyreResult<LoginBody> {
+    async fn execute_post<T: serde::de::DeserializeOwned, B: serde::Serialize>(
+        &self,
+        gofrom_id: &str,
+        body: B,
+    ) -> EyreResult<T> {
         let address = self.address.as_str();
         let url = format!("{address}/reqproc/proc_post");
 
-        let password = self.password.as_str();
-        let nonce = self.fetch_nonce().await?;
+        let form = FormBody {
+            goform_id: gofrom_id.into(),
+            is_test: "false".into(),
+            payload: body,
+        };
 
         let body = self
             .client
             .post(url)
-            .form(&[
-                ("username", b64(&self.username).as_str()),
-                ("password", &b64(&sha256(&format!("{nonce}{password}")))),
-                ("goformId", "LOGIN"),
-                ("unique_login_credentials", "1"),
-                ("isTest", "false"),
-            ])
+            .form(&form)
             .header("Referer", self.address.clone())
             .send()
             .await?
-            .json::<LoginBody>()
+            .json::<T>()
             .await?;
+
+        Ok(body)
+    }
+
+    async fn login(&self) -> EyreResult<LoginBody> {
+        let password = self.password.as_str();
+        let nonce = self.fetch_nonce().await?;
+
+        let form = LoginFormBody {
+            username: b64(&self.username).into(),
+            password: b64(&sha256(&format!("{nonce}{password}"))).into_boxed_str(),
+            unique_login_credentials: "1".into(),
+        };
+
+        let body: LoginBody = self.execute_post("LOGIN", form).await?;
 
         Ok(body)
     }
