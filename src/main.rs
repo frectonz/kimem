@@ -93,19 +93,21 @@ impl Router {
         })
     }
 
-    async fn fetch_nonce(&self) -> EyreResult<BoxStr> {
+    async fn execute_get<T: serde::de::DeserializeOwned>(&self, cmd: &str) -> EyreResult<T> {
         let address = self.address.as_str();
-        let url = format!("{address}/reqproc/proc_get?cmd=get_random_login&isTest=false");
+        let url = format!("{address}/reqproc/proc_get?cmd={cmd}&isTest=false");
+        let body = self.client.get(url).send().await?.json::<T>().await?;
+        Ok(body)
+    }
 
-        let nonce = self
-            .client
-            .get(url)
-            .send()
-            .await?
-            .json::<NonceBody>()
-            .await?;
+    async fn fetch_nonce(&self) -> EyreResult<BoxStr> {
+        let body = self.execute_get::<NonceBody>("get_random_login").await?;
+        Ok(body.random_login)
+    }
 
-        Ok(nonce.random_login)
+    async fn fetch_connected_devices(&self) -> EyreResult<StationListBody> {
+        let body = self.execute_get::<StationListBody>("station_list").await?;
+        Ok(body)
     }
 
     async fn login(&self) -> EyreResult<LoginBody> {
@@ -129,21 +131,6 @@ impl Router {
             .send()
             .await?
             .json::<LoginBody>()
-            .await?;
-
-        Ok(body)
-    }
-
-    async fn fetch_connected_devices(&self) -> EyreResult<StationListBody> {
-        let address = self.address.as_str();
-        let url = format!("{address}/reqproc/proc_get?cmd=station_list&isTest=false");
-
-        let body = self
-            .client
-            .get(url)
-            .send()
-            .await?
-            .json::<StationListBody>()
             .await?;
 
         Ok(body)
