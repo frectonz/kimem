@@ -32,6 +32,9 @@ async fn main() -> EyreResult<()> {
     let imei = router.fetch_imei().await?;
     dbg!(imei);
 
+    let imsi = router.fetch_sim_imsi().await?;
+    dbg!(imsi);
+
     Ok(())
 }
 
@@ -88,6 +91,12 @@ struct ConnectedDevice {
 #[derive(Debug, Deserialize)]
 struct ImeiBody {
     imei: BoxStr,
+}
+
+#[allow(dead_code)]
+#[derive(Debug, Deserialize)]
+struct SimImsiBody {
+    sim_imsi: BoxStr,
 }
 
 #[allow(dead_code)]
@@ -148,6 +157,11 @@ impl Router {
 
     async fn fetch_imei(&self) -> EyreResult<ImeiBody> {
         let body = self.execute_get::<ImeiBody>("imei").await?;
+        Ok(body)
+    }
+
+    async fn fetch_sim_imsi(&self) -> EyreResult<SimImsiBody> {
+        let body = self.execute_get::<SimImsiBody>("sim_imsi").await?;
         Ok(body)
     }
 
