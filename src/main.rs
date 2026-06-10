@@ -24,12 +24,13 @@ async fn main() -> EyreResult<()> {
     let router = Router::new(args)?;
 
     let login = router.login().await?;
-    dbg!(login.result);
-    dbg!(login.power);
-    dbg!(login.unique_login_credentials);
+    dbg!(login);
 
     let station_list_body = router.fetch_connected_devices().await?;
     dbg!(station_list_body);
+
+    let imei = router.fetch_imei().await?;
+    dbg!(imei);
 
     Ok(())
 }
@@ -55,6 +56,7 @@ struct NonceBody {
     random_login: BoxStr,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 struct LoginBody {
     result: BoxStr,
@@ -82,6 +84,12 @@ struct ConnectedDevice {
     ip_type: BoxStr,
 }
 
+#[allow(dead_code)]
+#[derive(Debug, Deserialize)]
+struct ImeiBody {
+    imei: BoxStr,
+}
+
 impl Router {
     fn new(args: Args) -> EyreResult<Self> {
         let router = args.router;
@@ -100,6 +108,14 @@ impl Router {
         Ok(body)
     }
 
+    #[allow(dead_code)]
+    async fn execute_get_return_txt(&self, cmd: &str) -> EyreResult<String> {
+        let address = self.address.as_str();
+        let url = format!("{address}/reqproc/proc_get?cmd={cmd}&isTest=false");
+        let body = self.client.get(url).send().await?.text().await?;
+        Ok(body)
+    }
+
     async fn fetch_nonce(&self) -> EyreResult<BoxStr> {
         let body = self.execute_get::<NonceBody>("get_random_login").await?;
         Ok(body.random_login)
@@ -107,6 +123,11 @@ impl Router {
 
     async fn fetch_connected_devices(&self) -> EyreResult<StationListBody> {
         let body = self.execute_get::<StationListBody>("station_list").await?;
+        Ok(body)
+    }
+
+    async fn fetch_imei(&self) -> EyreResult<ImeiBody> {
+        let body = self.execute_get::<ImeiBody>("imei").await?;
         Ok(body)
     }
 
