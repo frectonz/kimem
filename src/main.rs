@@ -38,6 +38,9 @@ async fn main() -> EyreResult<()> {
     let network_type = router.fetch_network_type().await?;
     dbg!(network_type);
 
+    let plmn = router.fetch_sim_plmn().await?;
+    dbg!(plmn);
+
     Ok(())
 }
 
@@ -109,6 +112,12 @@ struct NetworkTypeBody {
 }
 
 #[allow(dead_code)]
+#[derive(Debug, Deserialize)]
+struct SimPlmnBody {
+    sim_plmn: BoxStr,
+}
+
+#[allow(dead_code)]
 #[derive(Debug, Serialize)]
 struct FormBody<T: serde::Serialize> {
     #[serde(rename = "goformId")]
@@ -176,6 +185,11 @@ impl Router {
 
     async fn fetch_network_type(&self) -> EyreResult<NetworkTypeBody> {
         let body = self.execute_get::<NetworkTypeBody>("network_type").await?;
+        Ok(body)
+    }
+
+    async fn fetch_sim_plmn(&self) -> EyreResult<SimPlmnBody> {
+        let body = self.execute_get::<SimPlmnBody>("sim_plmn").await?;
         Ok(body)
     }
 
