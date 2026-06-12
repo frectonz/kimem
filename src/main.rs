@@ -121,12 +121,10 @@ struct SimPlmnBody {
 
 #[allow(dead_code)]
 #[derive(Debug, Serialize)]
+#[serde(tag = "isTest", rename = "false")]
 struct FormBody<T: serde::Serialize> {
     #[serde(rename = "goformId")]
     goform_id: BoxStr,
-    #[serde(rename = "isTest")]
-    is_test: BoxStr,
-
     #[serde(flatten)]
     payload: T,
 }
@@ -205,7 +203,6 @@ impl Router {
 
         let form = FormBody {
             goform_id: gofrom_id.into(),
-            is_test: "false".into(),
             payload: body,
         };
 
