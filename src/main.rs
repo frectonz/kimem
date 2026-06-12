@@ -122,6 +122,15 @@ struct SimPlmnBody {
 #[allow(dead_code)]
 #[derive(Debug, Serialize)]
 #[serde(tag = "isTest", rename = "false")]
+struct ParamsBody<T: serde::Serialize> {
+    cmd: BoxStr,
+    #[serde(flatten)]
+    payload: Option<T>,
+}
+
+#[allow(dead_code)]
+#[derive(Debug, Serialize)]
+#[serde(tag = "isTest", rename = "false")]
 struct FormBody<T: serde::Serialize> {
     #[serde(rename = "goformId")]
     goform_id: BoxStr,
@@ -148,48 +157,61 @@ impl Router {
         })
     }
 
-    async fn execute_get<T: serde::de::DeserializeOwned>(&self, cmd: &str) -> EyreResult<T> {
+    async fn execute_get<T: serde::de::DeserializeOwned, P: serde::Serialize>(
+        &self,
+        cmd: &str,
+        params: Option<P>,
+    ) -> EyreResult<T> {
         let address = self.address.as_ref();
-        let url = format!("{address}/reqproc/proc_get?cmd={cmd}&isTest=false");
+
+        let params = ParamsBody {
+            cmd: cmd.into(),
+            payload: params,
+        };
+        let params = serde_urlencoded::to_string(&params)?;
+
+        let url = format!("{address}/reqproc/proc_get?{params}");
         let body = self.client.get(url).send().await?.json::<T>().await?;
         Ok(body)
     }
 
-    #[allow(dead_code)]
-    async fn execute_get_return_txt(&self, cmd: &str) -> EyreResult<String> {
-        let address = self.address.as_ref();
-        let url = format!("{address}/reqproc/proc_get?cmd={cmd}&isTest=false");
-        let body = self.client.get(url).send().await?.text().await?;
-        Ok(body)
-    }
-
     async fn fetch_nonce(&self) -> EyreResult<BoxStr> {
-        let body = self.execute_get::<NonceBody>("get_random_login").await?;
+        let body = self
+            .execute_get::<NonceBody, ()>("get_random_login", None)
+            .await?;
         Ok(body.random_login)
     }
 
     async fn fetch_connected_devices(&self) -> EyreResult<StationListBody> {
-        let body = self.execute_get::<StationListBody>("station_list").await?;
+        let body = self
+            .execute_get::<StationListBody, ()>("station_list", None)
+            .await?;
         Ok(body)
     }
 
     async fn fetch_imei(&self) -> EyreResult<ImeiBody> {
-        let body = self.execute_get::<ImeiBody>("imei").await?;
+        let body = self.execute_get::<ImeiBody, ()>("imei", None).await?;
         Ok(body)
     }
 
     async fn fetch_sim_imsi(&self) -> EyreResult<SimImsiBody> {
-        let body = self.execute_get::<SimImsiBody>("sim_imsi").await?;
+        let body = self
+            .execute_get::<SimImsiBody, ()>("sim_imsi", None)
+            .await?;
         Ok(body)
     }
 
     async fn fetch_network_type(&self) -> EyreResult<NetworkTypeBody> {
-        let body = self.execute_get::<NetworkTypeBody>("network_type").await?;
+        let body = self
+            .execute_get::<NetworkTypeBody, ()>("network_type", None)
+            .await?;
         Ok(body)
     }
 
     async fn fetch_sim_plmn(&self) -> EyreResult<SimPlmnBody> {
-        let body = self.execute_get::<SimPlmnBody>("sim_plmn").await?;
+        let body = self
+            .execute_get::<SimPlmnBody, ()>("sim_plmn", None)
+            .await?;
         Ok(body)
     }
 
