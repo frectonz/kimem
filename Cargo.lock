@@ -835,6 +835,7 @@ dependencies = [
  "hex",
  "reqwest",
  "serde",
+ "serde_urlencoded",
  "sha2",
  "tokio",
 ]
