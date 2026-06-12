@@ -13,9 +13,9 @@ struct Args {
     router: IpAddr,
 
     #[clap(default_value = "admin")]
-    username: String,
+    username: BoxStr,
     #[clap(default_value = "admin")]
-    password: String,
+    password: BoxStr,
 }
 
 #[tokio::main]
@@ -40,9 +40,9 @@ async fn main() -> EyreResult<()> {
 
 struct Router {
     client: reqwest::Client,
-    address: String,
-    username: String,
-    password: String,
+    address: BoxStr,
+    username: BoxStr,
+    password: BoxStr,
 }
 
 fn b64(input: &str) -> String {
@@ -124,14 +124,14 @@ impl Router {
         let router = args.router;
         Ok(Self {
             client: reqwest::Client::builder().user_agent("Kimem CLI").build()?,
-            address: format!("http://{router}"),
+            address: format!("http://{router}").into_boxed_str(),
             username: args.username,
             password: args.password,
         })
     }
 
     async fn execute_get<T: serde::de::DeserializeOwned>(&self, cmd: &str) -> EyreResult<T> {
-        let address = self.address.as_str();
+        let address = self.address.as_ref();
         let url = format!("{address}/reqproc/proc_get?cmd={cmd}&isTest=false");
         let body = self.client.get(url).send().await?.json::<T>().await?;
         Ok(body)
@@ -139,7 +139,7 @@ impl Router {
 
     #[allow(dead_code)]
     async fn execute_get_return_txt(&self, cmd: &str) -> EyreResult<String> {
-        let address = self.address.as_str();
+        let address = self.address.as_ref();
         let url = format!("{address}/reqproc/proc_get?cmd={cmd}&isTest=false");
         let body = self.client.get(url).send().await?.text().await?;
         Ok(body)
@@ -170,7 +170,7 @@ impl Router {
         gofrom_id: &str,
         body: B,
     ) -> EyreResult<T> {
-        let address = self.address.as_str();
+        let address = self.address.as_ref();
         let url = format!("{address}/reqproc/proc_post");
 
         let form = FormBody {
@@ -183,7 +183,7 @@ impl Router {
             .client
             .post(url)
             .form(&form)
-            .header("Referer", self.address.clone())
+            .header("Referer", self.address.as_ref())
             .send()
             .await?
             .json::<T>()
@@ -193,7 +193,7 @@ impl Router {
     }
 
     async fn login(&self) -> EyreResult<LoginBody> {
-        let password = self.password.as_str();
+        let password = self.password.as_ref();
         let nonce = self.fetch_nonce().await?;
 
         let form = LoginFormBody {
