@@ -51,13 +51,15 @@ struct Router {
     password: BoxStr,
 }
 
-fn b64(input: &str) -> String {
-    base64::prelude::BASE64_STANDARD.encode(input)
+fn b64(input: &str) -> BoxStr {
+    base64::prelude::BASE64_STANDARD
+        .encode(input)
+        .into_boxed_str()
 }
 
-fn sha256(input: &str) -> String {
+fn sha256(input: &str) -> BoxStr {
     let hash = sha2::Sha256::digest(input);
-    hex::encode(hash)
+    hex::encode(hash).into_boxed_str()
 }
 
 #[derive(Debug, Deserialize)]
@@ -225,8 +227,8 @@ impl Router {
         let nonce = self.fetch_nonce().await?;
 
         let form = LoginFormBody {
-            username: b64(&self.username).into(),
-            password: b64(&sha256(&format!("{nonce}{password}"))).into_boxed_str(),
+            username: b64(&self.username),
+            password: b64(&sha256(&format!("{nonce}{password}"))),
             unique_login_credentials: "1".into(),
         };
 
