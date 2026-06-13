@@ -4,8 +4,7 @@ use serde::{Deserialize, Serialize};
 use sha2::Digest;
 use std::net::IpAddr;
 
-type BoxStr = Box<str>;
-type EyreResult<T> = color_eyre::Result<T>;
+use kimem::*;
 
 #[derive(Parser, Debug)]
 struct Args {
@@ -26,19 +25,19 @@ async fn main() -> EyreResult<()> {
     let login = router.login().await?;
     dbg!(login);
 
-    let station_list_body = router.fetch_connected_devices().await?;
-    dbg!(station_list_body);
+    let station_list = router.execute_get::<StationList>().await?;
+    dbg!(station_list);
 
-    let network_type = router.fetch_network_type().await?;
+    let network_type = router.execute_get::<NetworkType>().await?;
     dbg!(network_type);
 
-    let plmn = router.fetch_sim_plmn().await?;
+    let plmn = router.execute_get::<SimPlmn>().await?;
     dbg!(plmn);
 
     let logout = router.logout().await?;
     dbg!(logout);
 
-    let station_list_body = router.fetch_connected_devices().await;
+    let station_list_body = router.execute_get::<StationList>().await;
     assert!(station_list_body.is_err());
 
     Ok(())
@@ -62,37 +61,6 @@ fn sha256(input: &str) -> BoxStr {
     hex::encode(hash).into_boxed_str()
 }
 
-trait ProcGet {
-    const CMD: &str;
-    type Params: serde::ser::Serialize + Default;
-    type Response: serde::de::DeserializeOwned;
-}
-
-#[derive(Debug, Deserialize)]
-struct GetRandomLogin {
-    random_login: BoxStr,
-}
-
-impl ProcGet for GetRandomLogin {
-    const CMD: &str = "get_random_login";
-    type Params = ();
-    type Response = GetRandomLogin;
-}
-
-#[allow(dead_code)]
-#[derive(Debug, Deserialize)]
-struct StationListBody {
-    station_list: Vec<ConnectedDevice>,
-}
-
-struct StationListRequest;
-
-impl ProcGet for StationListRequest {
-    const CMD: &str = "station_list";
-    type Params = ();
-    type Response = StationListBody;
-}
-
 #[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 struct LoginBody {
@@ -105,76 +73,6 @@ struct LoginBody {
 #[derive(Debug, Deserialize)]
 struct ResultBody {
     result: BoxStr,
-}
-
-#[allow(dead_code)]
-#[derive(Debug, Deserialize)]
-struct ConnectedDevice {
-    connect_time: BoxStr,
-    ssid_index: BoxStr,
-    dev_type: BoxStr,
-    mac_addr: BoxStr,
-    hostname: BoxStr,
-    ip_addr: BoxStr,
-    ipv6: BoxStr,
-    ipv6_local: BoxStr,
-    ip_type: BoxStr,
-}
-
-struct ImeiRequest;
-
-impl ProcGet for ImeiRequest {
-    const CMD: &str = "imei";
-    type Params = ();
-    type Response = ImeiBody;
-}
-
-#[allow(dead_code)]
-#[derive(Debug, Deserialize)]
-struct ImeiBody {
-    imei: BoxStr,
-}
-
-struct SimImsiRequest;
-
-impl ProcGet for SimImsiRequest {
-    const CMD: &str = "sim_imsi";
-    type Params = ();
-    type Response = SimImsiBody;
-}
-
-#[allow(dead_code)]
-#[derive(Debug, Deserialize)]
-struct SimImsiBody {
-    sim_imsi: BoxStr,
-}
-
-struct NetworkTypeRequest;
-
-#[allow(dead_code)]
-#[derive(Debug, Deserialize)]
-struct NetworkTypeBody {
-    network_type: BoxStr,
-}
-
-impl ProcGet for NetworkTypeRequest {
-    const CMD: &str = "network_type";
-    type Params = ();
-    type Response = NetworkTypeBody;
-}
-
-struct SimPlmnRequest;
-
-#[allow(dead_code)]
-#[derive(Debug, Deserialize)]
-struct SimPlmnBody {
-    sim_plmn: BoxStr,
-}
-
-impl ProcGet for SimPlmnRequest {
-    const CMD: &str = "sim_plmn";
-    type Params = ();
-    type Response = SimPlmnBody;
 }
 
 #[allow(dead_code)]
@@ -272,36 +170,10 @@ impl Router {
         self.execute_post_with(gofrom_id, ()).await
     }
 
-    async fn fetch_get_random_login(&self) -> EyreResult<BoxStr> {
-        let body = self.execute_get::<GetRandomLogin>().await?;
-        Ok(body.random_login)
-    }
-
-    async fn fetch_connected_devices(&self) -> EyreResult<StationListBody> {
-        self.execute_get::<StationListRequest>().await
-    }
-
-    #[allow(dead_code)]
-    async fn fetch_imei(&self) -> EyreResult<ImeiBody> {
-        self.execute_get::<ImeiRequest>().await
-    }
-
-    #[allow(dead_code)]
-    async fn fetch_sim_imsi(&self) -> EyreResult<SimImsiBody> {
-        self.execute_get::<SimImsiRequest>().await
-    }
-
-    async fn fetch_network_type(&self) -> EyreResult<NetworkTypeBody> {
-        self.execute_get::<NetworkTypeRequest>().await
-    }
-
-    async fn fetch_sim_plmn(&self) -> EyreResult<SimPlmnBody> {
-        self.execute_get::<SimPlmnRequest>().await
-    }
-
     async fn login(&self) -> EyreResult<LoginBody> {
         let password = self.password.as_ref();
-        let nonce = self.fetch_get_random_login().await?;
+        let random_login = self.execute_get::<GetRandomLogin>().await?;
+        let nonce = random_login.random_login;
 
         let form = LoginFormBody {
             username: b64(&self.username),
