@@ -5,6 +5,8 @@ pub trait ProcGet {
     const CMD: &str;
     type Params: serde::ser::Serialize + Default;
     type Response: serde::de::DeserializeOwned;
+
+    fn print_table(&self);
 }
 
 #[derive(Debug, Deserialize)]
@@ -16,6 +18,15 @@ impl ProcGet for GetRandomLogin {
     const CMD: &str = "get_random_login";
     type Params = ();
     type Response = GetRandomLogin;
+
+    fn print_table(&self) {
+        let mut table = comfy_table::Table::new();
+        table
+            .set_header(["Random Login"])
+            .add_row([&self.random_login]);
+
+        println!("{table}");
+    }
 }
 
 #[derive(Debug, Deserialize)]
@@ -40,6 +51,30 @@ impl ProcGet for StationList {
     const CMD: &str = "station_list";
     type Params = ();
     type Response = StationList;
+
+    fn print_table(&self) {
+        let mut table = comfy_table::Table::new();
+
+        table.set_header([
+            "Dev Type",
+            "MAC Address",
+            "Hostname",
+            "IP Address",
+            "IP Type",
+        ]);
+
+        for d in self.station_list.iter() {
+            table.add_row([
+                &d.dev_type,
+                &d.mac_addr,
+                &d.hostname,
+                &d.ip_addr,
+                &d.ip_type,
+            ]);
+        }
+
+        println!("{table}");
+    }
 }
 
 #[derive(Debug, Deserialize)]
@@ -51,6 +86,10 @@ impl ProcGet for Imei {
     const CMD: &str = "imei";
     type Params = ();
     type Response = Imei;
+
+    fn print_table(&self) {
+        todo!()
+    }
 }
 
 #[derive(Debug, Deserialize)]
@@ -62,6 +101,10 @@ impl ProcGet for SimImsi {
     const CMD: &str = "sim_imsi";
     type Params = ();
     type Response = SimImsi;
+
+    fn print_table(&self) {
+        todo!()
+    }
 }
 
 #[derive(Debug, Deserialize)]
@@ -73,6 +116,10 @@ impl ProcGet for NetworkType {
     const CMD: &str = "network_type";
     type Params = ();
     type Response = NetworkType;
+
+    fn print_table(&self) {
+        todo!()
+    }
 }
 
 #[derive(Debug, Deserialize)]
@@ -84,4 +131,8 @@ impl ProcGet for SimPlmn {
     const CMD: &str = "sim_plmn";
     type Params = ();
     type Response = SimPlmn;
+
+    fn print_table(&self) {
+        todo!()
+    }
 }

@@ -23,7 +23,7 @@ async fn main() -> EyreResult<()> {
     dbg!(login);
 
     let station_list = router.execute_get::<StationList>().await?;
-    dbg!(station_list);
+    station_list.print_table();
 
     let network_type = router.execute_get::<NetworkType>().await?;
     dbg!(network_type);
