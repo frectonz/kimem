@@ -41,6 +41,12 @@ async fn main() -> EyreResult<()> {
     let plmn = router.fetch_sim_plmn().await?;
     dbg!(plmn);
 
+    let logout = router.logout().await?;
+    dbg!(logout);
+
+    let station_list_body = router.fetch_connected_devices().await;
+    assert_eq!(station_list_body.is_err(), true);
+
     Ok(())
 }
 
@@ -73,6 +79,12 @@ struct LoginBody {
     result: BoxStr,
     power: BoxStr,
     unique_login_credentials: BoxStr,
+}
+
+#[allow(dead_code)]
+#[derive(Debug, Deserialize)]
+struct ResultBody {
+    result: BoxStr,
 }
 
 #[allow(dead_code)]
@@ -179,7 +191,7 @@ impl Router {
         self.execute_get_with::<T, ()>(cmd, None).await
     }
 
-    async fn execute_post<T: serde::de::DeserializeOwned, B: serde::Serialize>(
+    async fn execute_post_with<T: serde::de::DeserializeOwned, B: serde::Serialize>(
         &self,
         gofrom_id: &str,
         body: B,
@@ -203,6 +215,10 @@ impl Router {
             .await?;
 
         Ok(body)
+    }
+
+    async fn execute_post<T: serde::de::DeserializeOwned>(&self, gofrom_id: &str) -> EyreResult<T> {
+        self.execute_post_with(gofrom_id, ()).await
     }
 
     async fn fetch_nonce(&self) -> EyreResult<BoxStr> {
@@ -240,8 +256,12 @@ impl Router {
             unique_login_credentials: "1".into(),
         };
 
-        let body: LoginBody = self.execute_post("LOGIN", form).await?;
+        let body: LoginBody = self.execute_post_with("LOGIN", form).await?;
 
         Ok(body)
+    }
+
+    async fn logout(&self) -> EyreResult<ResultBody> {
+        self.execute_post("LOGOUT").await
     }
 }
