@@ -29,12 +29,6 @@ async fn main() -> EyreResult<()> {
     let station_list_body = router.fetch_connected_devices().await?;
     dbg!(station_list_body);
 
-    let imei = router.fetch_imei().await?;
-    dbg!(imei);
-
-    let imsi = router.fetch_sim_imsi().await?;
-    dbg!(imsi);
-
     let network_type = router.fetch_network_type().await?;
     dbg!(network_type);
 
@@ -230,10 +224,12 @@ impl Router {
         self.execute_get("station_list").await
     }
 
+    #[allow(dead_code)]
     async fn fetch_imei(&self) -> EyreResult<ImeiBody> {
         self.execute_get("imei").await
     }
 
+    #[allow(dead_code)]
     async fn fetch_sim_imsi(&self) -> EyreResult<SimImsiBody> {
         self.execute_get("sim_imsi").await
     }
