@@ -69,16 +69,14 @@ trait ProcGet {
 }
 
 #[derive(Debug, Deserialize)]
-struct NonceBody {
+struct GetRandomLogin {
     random_login: BoxStr,
 }
 
-struct NonceRequest;
-
-impl ProcGet for NonceRequest {
+impl ProcGet for GetRandomLogin {
     const CMD: &str = "get_random_login";
     type Params = ();
-    type Response = NonceBody;
+    type Response = GetRandomLogin;
 }
 
 #[allow(dead_code)]
@@ -274,8 +272,8 @@ impl Router {
         self.execute_post_with(gofrom_id, ()).await
     }
 
-    async fn fetch_nonce(&self) -> EyreResult<BoxStr> {
-        let body = self.execute_get::<NonceRequest>().await?;
+    async fn fetch_get_random_login(&self) -> EyreResult<BoxStr> {
+        let body = self.execute_get::<GetRandomLogin>().await?;
         Ok(body.random_login)
     }
 
@@ -303,7 +301,7 @@ impl Router {
 
     async fn login(&self) -> EyreResult<LoginBody> {
         let password = self.password.as_ref();
-        let nonce = self.fetch_nonce().await?;
+        let nonce = self.fetch_get_random_login().await?;
 
         let form = LoginFormBody {
             username: b64(&self.username),
