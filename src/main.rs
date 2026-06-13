@@ -39,7 +39,7 @@ async fn main() -> EyreResult<()> {
     dbg!(logout);
 
     let station_list_body = router.fetch_connected_devices().await;
-    assert_eq!(station_list_body.is_err(), true);
+    assert!(station_list_body.is_err());
 
     Ok(())
 }
