@@ -63,14 +63,6 @@ fn sha256(input: &str) -> BoxStr {
 
 #[allow(dead_code)]
 #[derive(Debug, Deserialize)]
-struct LoginBody {
-    result: BoxStr,
-    power: BoxStr,
-    unique_login_credentials: BoxStr,
-}
-
-#[allow(dead_code)]
-#[derive(Debug, Deserialize)]
 struct ResultBody {
     result: BoxStr,
 }
@@ -92,14 +84,6 @@ struct FormBody<T: serde::Serialize> {
     goform_id: BoxStr,
     #[serde(flatten)]
     payload: T,
-}
-
-#[allow(dead_code)]
-#[derive(Debug, Serialize)]
-struct LoginFormBody {
-    username: BoxStr,
-    password: BoxStr,
-    unique_login_credentials: BoxStr,
 }
 
 impl Router {
@@ -140,17 +124,16 @@ impl Router {
         self.execute_get_with::<Req>(Req::Params::default()).await
     }
 
-    async fn execute_post_with<T: serde::de::DeserializeOwned, B: serde::Serialize>(
+    async fn execute_post_with<Req: ProcPost>(
         &self,
-        gofrom_id: &str,
-        body: B,
-    ) -> EyreResult<T> {
+        params: Req::Params,
+    ) -> EyreResult<Req::Response> {
         let address = self.address.as_ref();
         let url = format!("{address}/reqproc/proc_post");
 
         let form = FormBody {
-            goform_id: gofrom_id.into(),
-            payload: body,
+            goform_id: Req::GOFROM_ID.into(),
+            payload: params,
         };
 
         let body = self
@@ -160,33 +143,33 @@ impl Router {
             .header("Referer", self.address.as_ref())
             .send()
             .await?
-            .json::<T>()
+            .json::<Req::Response>()
             .await?;
 
         Ok(body)
     }
 
-    async fn execute_post<T: serde::de::DeserializeOwned>(&self, gofrom_id: &str) -> EyreResult<T> {
-        self.execute_post_with(gofrom_id, ()).await
+    async fn execute_post<Req: ProcPost>(&self) -> EyreResult<Req::Response> {
+        self.execute_post_with::<Req>(Req::Params::default()).await
     }
 
-    async fn login(&self) -> EyreResult<LoginBody> {
+    async fn login(&self) -> EyreResult<Login> {
         let password = self.password.as_ref();
         let random_login = self.execute_get::<GetRandomLogin>().await?;
         let nonce = random_login.random_login;
 
-        let form = LoginFormBody {
+        let form = LoginParams {
             username: b64(&self.username),
             password: b64(&sha256(&format!("{nonce}{password}"))),
             unique_login_credentials: "1".into(),
         };
 
-        let body: LoginBody = self.execute_post_with("LOGIN", form).await?;
+        let body = self.execute_post_with::<Login>(form).await?;
 
         Ok(body)
     }
 
-    async fn logout(&self) -> EyreResult<ResultBody> {
-        self.execute_post("LOGOUT").await
+    async fn logout(&self) -> EyreResult<Logout> {
+        self.execute_post::<Logout>().await
     }
 }
