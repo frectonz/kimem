@@ -1,5 +1,5 @@
 use clap::Parser;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use std::net::IpAddr;
 
 use kimem::*;
@@ -48,13 +48,6 @@ struct Router {
     password: BoxStr,
 }
 
-#[allow(dead_code)]
-#[derive(Debug, Deserialize)]
-struct ResultBody {
-    result: BoxStr,
-}
-
-#[allow(dead_code)]
 #[derive(Debug, Serialize)]
 #[serde(tag = "isTest", rename = "false")]
 struct ParamsBody<T: serde::Serialize> {
@@ -63,7 +56,6 @@ struct ParamsBody<T: serde::Serialize> {
     payload: T,
 }
 
-#[allow(dead_code)]
 #[derive(Debug, Serialize)]
 #[serde(tag = "isTest", rename = "false")]
 struct FormBody<T: serde::Serialize> {
