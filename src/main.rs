@@ -20,7 +20,7 @@ async fn main() -> EyreResult<()> {
     let router = Router::new(&args.router, &args.username, &args.password)?;
 
     let login = router.login().await?;
-    dbg!(login);
+    login.print_table();
 
     let station_list = router.execute_get::<StationList>().await?;
     station_list.print_table();
