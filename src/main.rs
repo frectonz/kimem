@@ -1,7 +1,5 @@
-use base64::Engine;
 use clap::Parser;
 use serde::{Deserialize, Serialize};
-use sha2::Digest;
 use std::net::IpAddr;
 
 use kimem::*;
@@ -48,17 +46,6 @@ struct Router {
     address: BoxStr,
     username: BoxStr,
     password: BoxStr,
-}
-
-fn b64(input: &str) -> BoxStr {
-    base64::prelude::BASE64_STANDARD
-        .encode(input)
-        .into_boxed_str()
-}
-
-fn sha256(input: &str) -> BoxStr {
-    let hash = sha2::Sha256::digest(input);
-    hex::encode(hash).into_boxed_str()
 }
 
 #[allow(dead_code)]
