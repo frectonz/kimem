@@ -37,3 +37,12 @@ impl ProcPost for Logout {
     type Params = ();
     type Response = Logout;
 }
+
+#[derive(Debug, Deserialize)]
+pub struct RebootDevice;
+
+impl ProcPost for RebootDevice {
+    const GOFROM_ID: &str = "REBOOT_DEVICE";
+    type Params = ();
+    type Response = RebootDevice;
+}

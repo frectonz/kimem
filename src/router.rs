@@ -113,4 +113,10 @@ impl Router {
     pub async fn logout(&self) -> EyreResult<Logout> {
         self.execute_post::<Logout>().await
     }
+
+    pub async fn reboot(&self) {
+        let res = self.execute_post::<RebootDevice>().await;
+        // server dies before responding to the reboot request
+        assert!(res.is_err())
+    }
 }
