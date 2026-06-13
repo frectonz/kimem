@@ -29,10 +29,9 @@ impl ProcPost for Login {
     type Response = Login;
 
     fn print_table(&self) {
-        let mut table = comfy_table::Table::new();
+        let mut table = create_table();
 
         table
-            .load_preset(comfy_table::presets::UTF8_FULL_CONDENSED)
             .set_header(["Result", "Power", "Unique Login Credentials"])
             .add_row([&self.result, &self.power, &self.unique_login_credentials]);
 

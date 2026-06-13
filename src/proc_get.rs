@@ -20,7 +20,8 @@ impl ProcGet for GetRandomLogin {
     type Response = GetRandomLogin;
 
     fn print_table(&self) {
-        let mut table = comfy_table::Table::new();
+        let mut table = create_table();
+
         table
             .set_header(["Random Login"])
             .add_row([&self.random_login]);
@@ -53,7 +54,7 @@ impl ProcGet for StationList {
     type Response = StationList;
 
     fn print_table(&self) {
-        let mut table = comfy_table::Table::new();
+        let mut table = create_table();
 
         table.set_header([
             "Dev Type",
