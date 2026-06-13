@@ -157,7 +157,7 @@ impl Router {
         })
     }
 
-    async fn execute_get<T: serde::de::DeserializeOwned, P: serde::Serialize>(
+    async fn execute_get_with<T: serde::de::DeserializeOwned, P: serde::Serialize>(
         &self,
         cmd: &str,
         params: Option<P>,
@@ -175,44 +175,8 @@ impl Router {
         Ok(body)
     }
 
-    async fn fetch_nonce(&self) -> EyreResult<BoxStr> {
-        let body = self
-            .execute_get::<NonceBody, ()>("get_random_login", None)
-            .await?;
-        Ok(body.random_login)
-    }
-
-    async fn fetch_connected_devices(&self) -> EyreResult<StationListBody> {
-        let body = self
-            .execute_get::<StationListBody, ()>("station_list", None)
-            .await?;
-        Ok(body)
-    }
-
-    async fn fetch_imei(&self) -> EyreResult<ImeiBody> {
-        let body = self.execute_get::<ImeiBody, ()>("imei", None).await?;
-        Ok(body)
-    }
-
-    async fn fetch_sim_imsi(&self) -> EyreResult<SimImsiBody> {
-        let body = self
-            .execute_get::<SimImsiBody, ()>("sim_imsi", None)
-            .await?;
-        Ok(body)
-    }
-
-    async fn fetch_network_type(&self) -> EyreResult<NetworkTypeBody> {
-        let body = self
-            .execute_get::<NetworkTypeBody, ()>("network_type", None)
-            .await?;
-        Ok(body)
-    }
-
-    async fn fetch_sim_plmn(&self) -> EyreResult<SimPlmnBody> {
-        let body = self
-            .execute_get::<SimPlmnBody, ()>("sim_plmn", None)
-            .await?;
-        Ok(body)
+    async fn execute_get<T: serde::de::DeserializeOwned>(&self, cmd: &str) -> EyreResult<T> {
+        self.execute_get_with::<T, ()>(cmd, None).await
     }
 
     async fn execute_post<T: serde::de::DeserializeOwned, B: serde::Serialize>(
@@ -239,6 +203,31 @@ impl Router {
             .await?;
 
         Ok(body)
+    }
+
+    async fn fetch_nonce(&self) -> EyreResult<BoxStr> {
+        let body = self.execute_get::<NonceBody>("get_random_login").await?;
+        Ok(body.random_login)
+    }
+
+    async fn fetch_connected_devices(&self) -> EyreResult<StationListBody> {
+        self.execute_get("station_list").await
+    }
+
+    async fn fetch_imei(&self) -> EyreResult<ImeiBody> {
+        self.execute_get("imei").await
+    }
+
+    async fn fetch_sim_imsi(&self) -> EyreResult<SimImsiBody> {
+        self.execute_get("sim_imsi").await
+    }
+
+    async fn fetch_network_type(&self) -> EyreResult<NetworkTypeBody> {
+        self.execute_get("network_type").await
+    }
+
+    async fn fetch_sim_plmn(&self) -> EyreResult<SimPlmnBody> {
+        self.execute_get("sim_plmn").await
     }
 
     async fn login(&self) -> EyreResult<LoginBody> {
