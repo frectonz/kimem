@@ -1,8 +1,23 @@
+use crate::*;
+use serde::Serialize;
 use std::net::IpAddr;
 
-use serde::Serialize;
+#[derive(Debug, Serialize)]
+#[serde(tag = "isTest", rename = "false")]
+struct ParamsBody<T: serde::Serialize> {
+    cmd: BoxStr,
+    #[serde(flatten)]
+    payload: T,
+}
 
-use crate::*;
+#[derive(Debug, Serialize)]
+#[serde(tag = "isTest", rename = "false")]
+struct FormBody<T: serde::Serialize> {
+    #[serde(rename = "goformId")]
+    goform_id: BoxStr,
+    #[serde(flatten)]
+    payload: T,
+}
 
 pub struct Router {
     client: reqwest::Client,
@@ -21,19 +36,8 @@ impl Router {
         })
     }
 
-    pub async fn execute_get_with<Req: ProcGet>(
-        &self,
-        params: Req::Params,
-    ) -> EyreResult<Req::Response> {
+    async fn create_get<Req: ProcGet>(&self, params: Req::Params) -> EyreResult<reqwest::Response> {
         let address = self.address.as_ref();
-
-        #[derive(Debug, Serialize)]
-        #[serde(tag = "isTest", rename = "false")]
-        struct ParamsBody<T: serde::Serialize> {
-            cmd: BoxStr,
-            #[serde(flatten)]
-            payload: T,
-        }
 
         let params = serde_urlencoded::to_string(&ParamsBody {
             cmd: Req::CMD.into(),
@@ -41,10 +45,14 @@ impl Router {
         })?;
 
         let url = format!("{address}/reqproc/proc_get?{params}");
+        let response = self.client.get(url).send().await?;
+
+        Ok(response)
+    }
+
+    pub async fn get_with<Req: ProcGet>(&self, params: Req::Params) -> EyreResult<Req::Response> {
         let body = self
-            .client
-            .get(url)
-            .send()
+            .create_get::<Req>(params)
             .await?
             .json::<Req::Response>()
             .await?;
@@ -52,37 +60,51 @@ impl Router {
         Ok(body)
     }
 
-    pub async fn execute_get<Req: ProcGet>(&self) -> EyreResult<Req::Response> {
-        self.execute_get_with::<Req>(Req::Params::default()).await
+    pub async fn get_text_with<Req: ProcGet>(&self, params: Req::Params) -> EyreResult<BoxStr> {
+        let body = self
+            .create_get::<Req>(params)
+            .await?
+            .text()
+            .await?
+            .into_boxed_str();
+
+        Ok(body)
     }
 
-    pub async fn execute_post_with<Req: ProcPost>(
+    pub async fn get<Req: ProcGet>(&self) -> EyreResult<Req::Response> {
+        self.get_with::<Req>(Req::Params::default()).await
+    }
+
+    pub async fn get_text<Req: ProcGet>(&self) -> EyreResult<BoxStr> {
+        self.get_text_with::<Req>(Req::Params::default()).await
+    }
+
+    pub async fn create_post<Req: ProcPost>(
         &self,
         params: Req::Params,
-    ) -> EyreResult<Req::Response> {
+    ) -> EyreResult<reqwest::Response> {
         let address = self.address.as_ref();
         let url = format!("{address}/reqproc/proc_post");
-
-        #[derive(Debug, Serialize)]
-        #[serde(tag = "isTest", rename = "false")]
-        struct FormBody<T: serde::Serialize> {
-            #[serde(rename = "goformId")]
-            goform_id: BoxStr,
-            #[serde(flatten)]
-            payload: T,
-        }
 
         let form = FormBody {
             goform_id: Req::GOFROM_ID.into(),
             payload: params,
         };
 
-        let body = self
+        let response = self
             .client
             .post(url)
             .form(&form)
             .header("Referer", self.address.as_ref())
             .send()
+            .await?;
+
+        Ok(response)
+    }
+
+    pub async fn post_with<Req: ProcPost>(&self, params: Req::Params) -> EyreResult<Req::Response> {
+        let body = self
+            .create_post::<Req>(params)
             .await?
             .json::<Req::Response>()
             .await?;
@@ -90,13 +112,28 @@ impl Router {
         Ok(body)
     }
 
-    pub async fn execute_post<Req: ProcPost>(&self) -> EyreResult<Req::Response> {
-        self.execute_post_with::<Req>(Req::Params::default()).await
+    pub async fn post_text_with<Req: ProcPost>(&self, params: Req::Params) -> EyreResult<BoxStr> {
+        let body = self
+            .create_post::<Req>(params)
+            .await?
+            .text()
+            .await?
+            .into_boxed_str();
+
+        Ok(body)
+    }
+
+    pub async fn post<Req: ProcPost>(&self) -> EyreResult<Req::Response> {
+        self.post_with::<Req>(Req::Params::default()).await
+    }
+
+    pub async fn post_text<Req: ProcPost>(&self) -> EyreResult<BoxStr> {
+        self.post_text_with::<Req>(Req::Params::default()).await
     }
 
     pub async fn login(&self) -> EyreResult<Login> {
         let password = self.password.as_ref();
-        let random_login = self.execute_get::<GetRandomLogin>().await?;
+        let random_login = self.get::<GetRandomLogin>().await?;
         let nonce = random_login.random_login;
 
         let form = LoginParams {
@@ -105,17 +142,17 @@ impl Router {
             unique_login_credentials: "1".into(),
         };
 
-        let body = self.execute_post_with::<Login>(form).await?;
+        let body = self.post_with::<Login>(form).await?;
 
         Ok(body)
     }
 
     pub async fn logout(&self) -> EyreResult<Logout> {
-        self.execute_post::<Logout>().await
+        self.post::<Logout>().await
     }
 
     pub async fn reboot(&self) -> RebootDevice {
-        let res = self.execute_post::<RebootDevice>().await;
+        let res = self.post::<RebootDevice>().await;
         // server dies before responding to the reboot request
         assert!(res.is_err());
         RebootDevice

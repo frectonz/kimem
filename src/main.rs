@@ -1,7 +1,6 @@
 use clap::{Parser, Subcommand};
-use std::net::IpAddr;
-
 use kimem::*;
+use std::net::IpAddr;
 
 #[derive(Parser, Debug)]
 #[command(version, about)]
@@ -40,7 +39,7 @@ enum GetCommands {
     Imei,
     /// Fetch SIM IMSI.
     Imsi,
-    /// Fetch the network type the router is connected to.
+    /// Fetch the network type.
     NetworkType,
     /// Fetch SIM PLMN.
     Plmn,
@@ -67,35 +66,35 @@ async fn main() -> EyreResult<()> {
     match args.command {
         TopLevelCommands::Get { command } => match command {
             GetCommands::Devices => {
-                let station_list = router.execute_get::<StationList>().await?;
+                let station_list = router.get::<StationList>().await?;
                 station_list.print_table();
             }
             GetCommands::Imei => {
-                let imei = router.execute_get::<Imei>().await?;
+                let imei = router.get::<Imei>().await?;
                 imei.print_table();
             }
             GetCommands::Imsi => {
-                let imsi = router.execute_get::<SimImsi>().await?;
+                let imsi = router.get::<SimImsi>().await?;
                 imsi.print_table();
             }
             GetCommands::NetworkType => {
-                let network_type = router.execute_get::<NetworkType>().await?;
+                let network_type = router.get::<NetworkType>().await?;
                 network_type.print_table();
             }
             GetCommands::Plmn => {
-                let sim_plmn = router.execute_get::<SimPlmn>().await?;
+                let sim_plmn = router.get::<SimPlmn>().await?;
                 sim_plmn.print_table();
             }
             GetCommands::Rssi => {
-                let rssi = router.execute_get::<Rssi>().await?;
+                let rssi = router.get::<Rssi>().await?;
                 rssi.print_table();
             }
             GetCommands::Signalbar => {
-                let rssi = router.execute_get::<SignalBar>().await?;
+                let rssi = router.get::<SignalBar>().await?;
                 rssi.print_table();
             }
             GetCommands::AirtimeBalance => {
-                let airtime_balance = router.execute_get::<AirtimeBalance>().await?;
+                let airtime_balance = router.get::<AirtimeBalance>().await?;
                 airtime_balance.print_table();
             }
         },
