@@ -147,3 +147,20 @@ impl ProcGet for SimPlmn {
         println!("{table}");
     }
 }
+
+#[derive(Debug, Deserialize)]
+pub struct Rssi {
+    pub rssi: BoxStr,
+}
+
+impl ProcGet for Rssi {
+    const CMD: &str = "rssi";
+    type Params = ();
+    type Response = Rssi;
+
+    fn print_table(&self) {
+        let mut table = create_table();
+        table.set_header(["RSSI (dBm)"]).add_row([&self.rssi]);
+        println!("{table}");
+    }
+}

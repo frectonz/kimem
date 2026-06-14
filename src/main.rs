@@ -44,6 +44,8 @@ enum GetCommands {
     NetworkType,
     /// Fetch SIM PLMN.
     Plmn,
+    // Router signal strength in dBm.
+    Rssi,
 }
 
 #[derive(Subcommand, Debug)]
@@ -79,6 +81,10 @@ async fn main() -> EyreResult<()> {
             GetCommands::Plmn => {
                 let sim_plmn = router.execute_get::<SimPlmn>().await?;
                 sim_plmn.print_table();
+            }
+            GetCommands::Rssi => {
+                let rssi = router.execute_get::<Rssi>().await?;
+                rssi.print_table();
             }
         },
         TopLevelCommands::Post { command } => match command {
