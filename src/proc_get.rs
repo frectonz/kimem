@@ -194,9 +194,8 @@ impl ProcGet for AirtimeBalance {
 
     fn print_table(&self) {
         let mut table = create_table();
-        table
-            .set_header(["Airtime Balance"])
-            .add_row([&self.airtime_balance]);
+        let balance = decode_ucs2_be(&self.airtime_balance).unwrap_or_default();
+        table.set_header(["Airtime Balance"]).add_row([&balance]);
         println!("{table}");
     }
 }
