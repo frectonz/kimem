@@ -181,3 +181,22 @@ impl ProcGet for SignalBar {
         println!("{table}");
     }
 }
+
+#[derive(Debug, Deserialize)]
+pub struct AirtimeBalance {
+    pub airtime_balance: BoxStr,
+}
+
+impl ProcGet for AirtimeBalance {
+    const CMD: &str = "airtime_balance";
+    type Params = ();
+    type Response = AirtimeBalance;
+
+    fn print_table(&self) {
+        let mut table = create_table();
+        table
+            .set_header(["Airtime Balance"])
+            .add_row([&self.airtime_balance]);
+        println!("{table}");
+    }
+}
