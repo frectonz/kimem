@@ -45,9 +45,8 @@ impl Router {
         })?;
 
         let url = format!("{address}/reqproc/proc_get?{params}");
-        let response = self.client.get(url).send().await?;
 
-        Ok(response)
+        with_retry(|| async { self.client.get(&url).send().await.map_err(Into::into) }).await
     }
 
     pub async fn get_with<Req: ProcGet>(&self, params: Req::Params) -> EyreResult<Req::Response> {
@@ -91,15 +90,16 @@ impl Router {
             payload: params,
         };
 
-        let response = self
-            .client
-            .post(url)
-            .form(&form)
-            .header("Referer", self.address.as_ref())
-            .send()
-            .await?;
-
-        Ok(response)
+        with_retry(|| async {
+            self.client
+                .post(&url)
+                .form(&form)
+                .header("Referer", self.address.as_ref())
+                .send()
+                .await
+                .map_err(Into::into)
+        })
+        .await
     }
 
     pub async fn post_with<Req: ProcPost>(&self, params: Req::Params) -> EyreResult<Req::Response> {
