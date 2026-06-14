@@ -89,7 +89,9 @@ impl ProcGet for Imei {
     type Response = Imei;
 
     fn print_table(&self) {
-        todo!()
+        let mut table = create_table();
+        table.set_header(["IMEI"]).add_row([&self.imei]);
+        println!("{table}");
     }
 }
 
@@ -104,7 +106,9 @@ impl ProcGet for SimImsi {
     type Response = SimImsi;
 
     fn print_table(&self) {
-        todo!()
+        let mut table = create_table();
+        table.set_header(["SIM IMSI"]).add_row([&self.sim_imsi]);
+        println!("{table}");
     }
 }
 
@@ -119,7 +123,11 @@ impl ProcGet for NetworkType {
     type Response = NetworkType;
 
     fn print_table(&self) {
-        todo!()
+        let mut table = create_table();
+        table
+            .set_header(["Network Type"])
+            .add_row([&self.network_type]);
+        println!("{table}");
     }
 }
 
@@ -134,6 +142,8 @@ impl ProcGet for SimPlmn {
     type Response = SimPlmn;
 
     fn print_table(&self) {
-        todo!()
+        let mut table = create_table();
+        table.set_header(["SIM PLMN"]).add_row([&self.sim_plmn]);
+        println!("{table}");
     }
 }

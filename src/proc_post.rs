@@ -50,7 +50,9 @@ impl ProcPost for Logout {
     type Response = Logout;
 
     fn print_table(&self) {
-        todo!()
+        let mut table = create_table();
+        table.set_header(["Logout Result"]).add_row([&self.result]);
+        println!("{table}");
     }
 }
 
@@ -63,6 +65,6 @@ impl ProcPost for RebootDevice {
     type Response = RebootDevice;
 
     fn print_table(&self) {
-        todo!()
+        println!("Device Rebooted.");
     }
 }
