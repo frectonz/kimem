@@ -2,6 +2,7 @@
 name = "kimem"
 version = "0.1.0"
 edition = "2024"
+description = "Safaricom Kimem MIFI CLI"
 
 [dependencies]
 base64 = "0.22.1"

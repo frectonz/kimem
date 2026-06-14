@@ -114,9 +114,10 @@ impl Router {
         self.execute_post::<Logout>().await
     }
 
-    pub async fn reboot(&self) {
+    pub async fn reboot(&self) -> RebootDevice {
         let res = self.execute_post::<RebootDevice>().await;
         // server dies before responding to the reboot request
-        assert!(res.is_err())
+        assert!(res.is_err());
+        RebootDevice
     }
 }
