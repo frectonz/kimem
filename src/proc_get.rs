@@ -164,3 +164,20 @@ impl ProcGet for Rssi {
         println!("{table}");
     }
 }
+
+#[derive(Debug, Deserialize)]
+pub struct SignalBar {
+    pub signalbar: BoxStr,
+}
+
+impl ProcGet for SignalBar {
+    const CMD: &str = "signalbar";
+    type Params = ();
+    type Response = SignalBar;
+
+    fn print_table(&self) {
+        let mut table = create_table();
+        table.set_header(["Signal Bar"]).add_row([&self.signalbar]);
+        println!("{table}");
+    }
+}

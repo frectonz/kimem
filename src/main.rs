@@ -46,6 +46,8 @@ enum GetCommands {
     Plmn,
     // Router signal strength in dBm.
     Rssi,
+    // Router signal bar.
+    Signalbar,
 }
 
 #[derive(Subcommand, Debug)]
@@ -84,6 +86,10 @@ async fn main() -> EyreResult<()> {
             }
             GetCommands::Rssi => {
                 let rssi = router.execute_get::<Rssi>().await?;
+                rssi.print_table();
+            }
+            GetCommands::Signalbar => {
+                let rssi = router.execute_get::<SignalBar>().await?;
                 rssi.print_table();
             }
         },
