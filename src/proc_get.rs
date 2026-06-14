@@ -199,3 +199,20 @@ impl ProcGet for AirtimeBalance {
         println!("{table}");
     }
 }
+
+#[derive(Debug, Deserialize)]
+pub struct WanIpaddr {
+    pub wan_ipaddr: BoxStr,
+}
+
+impl ProcGet for WanIpaddr {
+    const CMD: &str = "wan_ipaddr";
+    type Params = ();
+    type Response = WanIpaddr;
+
+    fn print_table(&self) {
+        let mut table = create_table();
+        table.set_header(["WAN IP"]).add_row([&self.wan_ipaddr]);
+        println!("{table}");
+    }
+}

@@ -43,12 +43,14 @@ enum GetCommands {
     NetworkType,
     /// Fetch SIM PLMN.
     Plmn,
-    /// Router signal strength in dBm.
+    /// Fetch router signal strength in dBm.
     Rssi,
-    /// Router signal bar.
+    /// Fetch router signal bar.
     Signalbar,
-    /// Last cached airtime balance.
+    /// Fetch last cached airtime balance.
     AirtimeBalance,
+    /// Fetch WAN IP address
+    WanIpaddr,
 }
 
 #[derive(Subcommand, Debug)]
@@ -96,6 +98,10 @@ async fn main() -> EyreResult<()> {
             GetCommands::AirtimeBalance => {
                 let airtime_balance = router.get::<AirtimeBalance>().await?;
                 airtime_balance.print_table();
+            }
+            GetCommands::WanIpaddr => {
+                let wan_ipaddr = router.get::<WanIpaddr>().await?;
+                wan_ipaddr.print_table();
             }
         },
         TopLevelCommands::Post { command } => match command {
