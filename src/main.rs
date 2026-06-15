@@ -53,6 +53,8 @@ enum GetCommands {
     WanIpaddr,
     /// Fetch PPP status.
     PppStatus,
+    /// Fetch firmware version.
+    CrVersion,
 }
 
 #[derive(Subcommand, Debug)]
@@ -108,6 +110,10 @@ async fn main() -> EyreResult<()> {
             GetCommands::PppStatus => {
                 let ppp_status = router.get::<PppStatus>().await?;
                 ppp_status.print_table();
+            }
+            GetCommands::CrVersion => {
+                let cr_version = router.get::<CrVersion>().await?;
+                cr_version.print_table();
             }
         },
         TopLevelCommands::Post { command } => match command {

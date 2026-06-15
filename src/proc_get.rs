@@ -233,3 +233,20 @@ impl ProcGet for PppStatus {
         println!("{table}");
     }
 }
+
+#[derive(Debug, Deserialize)]
+pub struct CrVersion {
+    pub cr_version: BoxStr,
+}
+
+impl ProcGet for CrVersion {
+    const CMD: &str = "cr_version";
+    type Params = ();
+    type Response = CrVersion;
+
+    fn print_table(&self) {
+        let mut table = create_table();
+        table.set_header(["CR Version"]).add_row([&self.cr_version]);
+        println!("{table}");
+    }
+}
