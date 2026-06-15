@@ -1,10 +1,9 @@
 use crate::common::*;
 use serde::{Deserialize, Serialize};
 
-pub trait ProcPost {
+pub trait ProcPost: serde::de::DeserializeOwned {
     const GOFROM_ID: &str;
     type Params: serde::ser::Serialize + Default;
-    type Response: serde::de::DeserializeOwned;
 
     fn print_table(&self);
 }
@@ -26,7 +25,6 @@ pub struct Login {
 impl ProcPost for Login {
     const GOFROM_ID: &str = "LOGIN";
     type Params = LoginParams;
-    type Response = Login;
 
     fn print_table(&self) {
         let mut table = create_table();
@@ -47,7 +45,6 @@ pub struct Logout {
 impl ProcPost for Logout {
     const GOFROM_ID: &str = "LOGOUT";
     type Params = ();
-    type Response = Logout;
 
     fn print_table(&self) {
         let mut table = create_table();
@@ -62,7 +59,6 @@ pub struct RebootDevice;
 impl ProcPost for RebootDevice {
     const GOFROM_ID: &str = "REBOOT_DEVICE";
     type Params = ();
-    type Response = RebootDevice;
 
     fn print_table(&self) {
         println!("Device Rebooted.");

@@ -1,10 +1,9 @@
 use crate::common::*;
 use serde::Deserialize;
 
-pub trait ProcGet {
+pub trait ProcGet: serde::de::DeserializeOwned {
     const CMD: &str;
     type Params: serde::ser::Serialize + Default;
-    type Response: serde::de::DeserializeOwned;
 
     fn print_table(&self);
 }
@@ -17,7 +16,6 @@ pub struct GetRandomLogin {
 impl ProcGet for GetRandomLogin {
     const CMD: &str = "get_random_login";
     type Params = ();
-    type Response = GetRandomLogin;
 
     fn print_table(&self) {
         let mut table = create_table();
@@ -51,7 +49,6 @@ pub struct ConnectedDevice {
 impl ProcGet for StationList {
     const CMD: &str = "station_list";
     type Params = ();
-    type Response = StationList;
 
     fn print_table(&self) {
         let mut table = create_table();
@@ -86,7 +83,6 @@ pub struct Imei {
 impl ProcGet for Imei {
     const CMD: &str = "imei";
     type Params = ();
-    type Response = Imei;
 
     fn print_table(&self) {
         let mut table = create_table();
@@ -103,7 +99,6 @@ pub struct SimImsi {
 impl ProcGet for SimImsi {
     const CMD: &str = "sim_imsi";
     type Params = ();
-    type Response = SimImsi;
 
     fn print_table(&self) {
         let mut table = create_table();
@@ -120,7 +115,6 @@ pub struct NetworkType {
 impl ProcGet for NetworkType {
     const CMD: &str = "network_type";
     type Params = ();
-    type Response = NetworkType;
 
     fn print_table(&self) {
         let mut table = create_table();
@@ -139,7 +133,6 @@ pub struct SimPlmn {
 impl ProcGet for SimPlmn {
     const CMD: &str = "sim_plmn";
     type Params = ();
-    type Response = SimPlmn;
 
     fn print_table(&self) {
         let mut table = create_table();
@@ -156,7 +149,6 @@ pub struct Rssi {
 impl ProcGet for Rssi {
     const CMD: &str = "rssi";
     type Params = ();
-    type Response = Rssi;
 
     fn print_table(&self) {
         let mut table = create_table();
@@ -173,7 +165,6 @@ pub struct SignalBar {
 impl ProcGet for SignalBar {
     const CMD: &str = "signalbar";
     type Params = ();
-    type Response = SignalBar;
 
     fn print_table(&self) {
         let mut table = create_table();
@@ -190,7 +181,6 @@ pub struct AirtimeBalance {
 impl ProcGet for AirtimeBalance {
     const CMD: &str = "airtime_balance";
     type Params = ();
-    type Response = AirtimeBalance;
 
     fn print_table(&self) {
         let mut table = create_table();
@@ -208,7 +198,6 @@ pub struct WanIpaddr {
 impl ProcGet for WanIpaddr {
     const CMD: &str = "wan_ipaddr";
     type Params = ();
-    type Response = WanIpaddr;
 
     fn print_table(&self) {
         let mut table = create_table();
@@ -225,7 +214,6 @@ pub struct PppStatus {
 impl ProcGet for PppStatus {
     const CMD: &str = "ppp_status";
     type Params = ();
-    type Response = PppStatus;
 
     fn print_table(&self) {
         let mut table = create_table();
@@ -242,7 +230,6 @@ pub struct CrVersion {
 impl ProcGet for CrVersion {
     const CMD: &str = "cr_version";
     type Params = ();
-    type Response = CrVersion;
 
     fn print_table(&self) {
         let mut table = create_table();

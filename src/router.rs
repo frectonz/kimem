@@ -49,11 +49,11 @@ impl Router {
         with_retry(|| async { self.client.get(&url).send().await.map_err(Into::into) }).await
     }
 
-    pub async fn get_with<Req: ProcGet>(&self, params: Req::Params) -> EyreResult<Req::Response> {
+    pub async fn get_with<Req: ProcGet>(&self, params: Req::Params) -> EyreResult<Req> {
         let body = self
             .create_get::<Req>(params)
             .await?
-            .json::<Req::Response>()
+            .json::<Req>()
             .await?;
 
         Ok(body)
@@ -70,7 +70,7 @@ impl Router {
         Ok(body)
     }
 
-    pub async fn get<Req: ProcGet>(&self) -> EyreResult<Req::Response> {
+    pub async fn get<Req: ProcGet>(&self) -> EyreResult<Req> {
         self.get_with::<Req>(Req::Params::default()).await
     }
 
@@ -102,11 +102,11 @@ impl Router {
         .await
     }
 
-    pub async fn post_with<Req: ProcPost>(&self, params: Req::Params) -> EyreResult<Req::Response> {
+    pub async fn post_with<Req: ProcPost>(&self, params: Req::Params) -> EyreResult<Req> {
         let body = self
             .create_post::<Req>(params)
             .await?
-            .json::<Req::Response>()
+            .json::<Req>()
             .await?;
 
         Ok(body)
@@ -123,7 +123,7 @@ impl Router {
         Ok(body)
     }
 
-    pub async fn post<Req: ProcPost>(&self) -> EyreResult<Req::Response> {
+    pub async fn post<Req: ProcPost>(&self) -> EyreResult<Req> {
         self.post_with::<Req>(Req::Params::default()).await
     }
 
