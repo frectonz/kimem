@@ -237,3 +237,23 @@ impl ProcGet for CrVersion {
         println!("{table}");
     }
 }
+
+// battery_percentage
+
+#[derive(Debug, Deserialize)]
+pub struct BatteryPercentage {
+    pub battery_percentage: BoxStr,
+}
+
+impl ProcGet for BatteryPercentage {
+    const CMD: &str = "battery_percentage";
+    type Params = ();
+
+    fn print_table(&self) {
+        let mut table = create_table();
+        table
+            .set_header(["Battery Percentage"])
+            .add_row([&self.battery_percentage]);
+        println!("{table}");
+    }
+}

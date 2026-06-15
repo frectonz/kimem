@@ -55,6 +55,8 @@ pub enum GetCommands {
     PppStatus,
     /// Fetch firmware version.
     CrVersion,
+    /// Fetch battery percentage.
+    BatteryPercentage,
 }
 
 #[derive(Subcommand, Debug)]
