@@ -50,12 +50,7 @@ impl Router {
     }
 
     pub async fn get_with<Req: ProcGet>(&self, params: Req::Params) -> EyreResult<Req> {
-        let body = self
-            .create_get::<Req>(params)
-            .await?
-            .json::<Req>()
-            .await?;
-
+        let body = self.create_get::<Req>(params).await?.json::<Req>().await?;
         Ok(body)
     }
 
@@ -103,12 +98,7 @@ impl Router {
     }
 
     pub async fn post_with<Req: ProcPost>(&self, params: Req::Params) -> EyreResult<Req> {
-        let body = self
-            .create_post::<Req>(params)
-            .await?
-            .json::<Req>()
-            .await?;
-
+        let body = self.create_post::<Req>(params).await?.json::<Req>().await?;
         Ok(body)
     }
 
@@ -156,5 +146,10 @@ impl Router {
         // server dies before responding to the reboot request
         assert!(res.is_err());
         RebootDevice
+    }
+
+    pub async fn show<T: ProcGet>(&self) -> EyreResult<()> {
+        self.get::<T>().await?.print_table();
+        Ok(())
     }
 }

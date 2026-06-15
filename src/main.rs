@@ -9,58 +9,22 @@ async fn main() -> EyreResult<()> {
     router.login().await?;
     match args.command {
         TopLevelCommands::Get { command } => match command {
-            GetCommands::Devices => {
-                let station_list = router.get::<StationList>().await?;
-                station_list.print_table();
-            }
-            GetCommands::Imei => {
-                let imei = router.get::<Imei>().await?;
-                imei.print_table();
-            }
-            GetCommands::Imsi => {
-                let imsi = router.get::<SimImsi>().await?;
-                imsi.print_table();
-            }
-            GetCommands::NetworkType => {
-                let network_type = router.get::<NetworkType>().await?;
-                network_type.print_table();
-            }
-            GetCommands::Plmn => {
-                let sim_plmn = router.get::<SimPlmn>().await?;
-                sim_plmn.print_table();
-            }
-            GetCommands::Rssi => {
-                let rssi = router.get::<Rssi>().await?;
-                rssi.print_table();
-            }
-            GetCommands::Signalbar => {
-                let rssi = router.get::<SignalBar>().await?;
-                rssi.print_table();
-            }
-            GetCommands::AirtimeBalance => {
-                let airtime_balance = router.get::<AirtimeBalance>().await?;
-                airtime_balance.print_table();
-            }
-            GetCommands::WanIpaddr => {
-                let wan_ipaddr = router.get::<WanIpaddr>().await?;
-                wan_ipaddr.print_table();
-            }
-            GetCommands::PppStatus => {
-                let ppp_status = router.get::<PppStatus>().await?;
-                ppp_status.print_table();
-            }
-            GetCommands::CrVersion => {
-                let cr_version = router.get::<CrVersion>().await?;
-                cr_version.print_table();
-            }
+            GetCommands::Devices => router.show::<StationList>().await?,
+            GetCommands::Imei => router.show::<Imei>().await?,
+            GetCommands::Imsi => router.show::<SimImsi>().await?,
+            GetCommands::NetworkType => router.show::<NetworkType>().await?,
+            GetCommands::Plmn => router.show::<SimPlmn>().await?,
+            GetCommands::Rssi => router.show::<Rssi>().await?,
+            GetCommands::Signalbar => router.show::<SignalBar>().await?,
+            GetCommands::AirtimeBalance => router.show::<AirtimeBalance>().await?,
+            GetCommands::WanIpaddr => router.show::<WanIpaddr>().await?,
+            GetCommands::PppStatus => router.show::<PppStatus>().await?,
+            GetCommands::CrVersion => router.show::<CrVersion>().await?,
         },
         TopLevelCommands::Post { command } => match command {
-            PostCommands::Reboot => {
-                let reboot = router.reboot().await;
-                reboot.print_table();
-            }
+            PostCommands::Reboot => router.reboot().await.print_table(),
         },
-    }
+    };
     router.logout().await?;
 
     Ok(())
