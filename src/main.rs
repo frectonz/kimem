@@ -49,8 +49,10 @@ enum GetCommands {
     Signalbar,
     /// Fetch last cached airtime balance.
     AirtimeBalance,
-    /// Fetch WAN IP address
+    /// Fetch WAN IP address.
     WanIpaddr,
+    /// Fetch PPP status.
+    PppStatus,
 }
 
 #[derive(Subcommand, Debug)]
@@ -102,6 +104,10 @@ async fn main() -> EyreResult<()> {
             GetCommands::WanIpaddr => {
                 let wan_ipaddr = router.get::<WanIpaddr>().await?;
                 wan_ipaddr.print_table();
+            }
+            GetCommands::PppStatus => {
+                let ppp_status = router.get::<PppStatus>().await?;
+                ppp_status.print_table();
             }
         },
         TopLevelCommands::Post { command } => match command {

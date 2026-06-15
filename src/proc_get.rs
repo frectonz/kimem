@@ -216,3 +216,20 @@ impl ProcGet for WanIpaddr {
         println!("{table}");
     }
 }
+
+#[derive(Debug, Deserialize)]
+pub struct PppStatus {
+    pub ppp_status: BoxStr,
+}
+
+impl ProcGet for PppStatus {
+    const CMD: &str = "ppp_status";
+    type Params = ();
+    type Response = PppStatus;
+
+    fn print_table(&self) {
+        let mut table = create_table();
+        table.set_header(["PPP Status"]).add_row([&self.ppp_status]);
+        println!("{table}");
+    }
+}
