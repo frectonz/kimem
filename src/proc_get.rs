@@ -238,8 +238,6 @@ impl ProcGet for CrVersion {
     }
 }
 
-// battery_percentage
-
 #[derive(Debug, Deserialize)]
 pub struct BatteryPercentage {
     pub battery_percentage: BoxStr,
@@ -254,6 +252,24 @@ impl ProcGet for BatteryPercentage {
         table
             .set_header(["Battery Percentage"])
             .add_row([&self.battery_percentage]);
+        println!("{table}");
+    }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct BatteryExist {
+    pub battery_exist: BoxStr,
+}
+
+impl ProcGet for BatteryExist {
+    const CMD: &str = "battery_exist";
+    type Params = ();
+
+    fn print_table(&self) {
+        let mut table = create_table();
+        table
+            .set_header(["Battery Exists"])
+            .add_row([&self.battery_exist]);
         println!("{table}");
     }
 }

@@ -57,6 +57,8 @@ pub enum GetCommands {
     CrVersion,
     /// Fetch battery percentage.
     BatteryPercentage,
+    /// Check if batttery exists.
+    BatteryExists,
 }
 
 #[derive(Subcommand, Debug)]
