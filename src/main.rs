@@ -22,6 +22,7 @@ async fn main() -> EyreResult<()> {
             GetCommands::CrVersion => router.show::<CrVersion>().await?,
             GetCommands::BatteryPercentage => router.show::<BatteryPercentage>().await?,
             GetCommands::BatteryExists => router.show::<BatteryExist>().await?,
+            GetCommands::PowerExists => router.show::<PowerExist>().await?,
         },
         TopLevelCommands::Post { command } => match command {
             PostCommands::Reboot => router.reboot().await.print_table(),

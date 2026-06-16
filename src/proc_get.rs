@@ -273,3 +273,21 @@ impl ProcGet for BatteryExist {
         println!("{table}");
     }
 }
+
+#[derive(Debug, Deserialize)]
+pub struct PowerExist {
+    pub power_exist: BoxStr,
+}
+
+impl ProcGet for PowerExist {
+    const CMD: &str = "power_exist";
+    type Params = ();
+
+    fn print_table(&self) {
+        let mut table = create_table();
+        table
+            .set_header(["Power Exists"])
+            .add_row([&self.power_exist]);
+        println!("{table}");
+    }
+}

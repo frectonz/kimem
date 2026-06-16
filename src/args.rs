@@ -59,6 +59,8 @@ pub enum GetCommands {
     BatteryPercentage,
     /// Check if batttery exists.
     BatteryExists,
+    /// Check if power exists.
+    PowerExists,
 }
 
 #[derive(Subcommand, Debug)]
