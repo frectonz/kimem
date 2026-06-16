@@ -81,7 +81,7 @@ impl Router {
         let url = format!("{address}/reqproc/proc_post");
 
         let form = FormBody {
-            goform_id: Req::GOFROM_ID.into(),
+            goform_id: Req::GOFORM_ID.into(),
             payload: params,
         };
 

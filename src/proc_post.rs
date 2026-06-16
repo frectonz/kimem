@@ -2,7 +2,7 @@ use crate::common::*;
 use serde::{Deserialize, Serialize};
 
 pub trait ProcPost: serde::de::DeserializeOwned {
-    const GOFROM_ID: &str;
+    const GOFORM_ID: &str;
     type Params: serde::ser::Serialize + Default;
 
     fn print_table(&self);
@@ -23,7 +23,7 @@ pub struct Login {
 }
 
 impl ProcPost for Login {
-    const GOFROM_ID: &str = "LOGIN";
+    const GOFORM_ID: &str = "LOGIN";
     type Params = LoginParams;
 
     fn print_table(&self) {
@@ -43,7 +43,7 @@ pub struct Logout {
 }
 
 impl ProcPost for Logout {
-    const GOFROM_ID: &str = "LOGOUT";
+    const GOFORM_ID: &str = "LOGOUT";
     type Params = ();
 
     fn print_table(&self) {
@@ -57,7 +57,7 @@ impl ProcPost for Logout {
 pub struct RebootDevice;
 
 impl ProcPost for RebootDevice {
-    const GOFROM_ID: &str = "REBOOT_DEVICE";
+    const GOFORM_ID: &str = "REBOOT_DEVICE";
     type Params = ();
 
     fn print_table(&self) {
