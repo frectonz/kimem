@@ -45,6 +45,8 @@ pub enum GetCommands {
     Plmn,
     /// Fetch router signal strength in dBm.
     Rssi,
+    /// Fetch router RSCP in dBm.
+    Rscp,
     /// Fetch router signal bar.
     Signalbar,
     /// Fetch last cached airtime balance.

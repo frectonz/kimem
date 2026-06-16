@@ -158,6 +158,22 @@ impl ProcGet for Rssi {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct Rscp {
+    pub rscp: BoxStr,
+}
+
+impl ProcGet for Rscp {
+    const CMD: &str = "rscp";
+    type Params = ();
+
+    fn print_table(&self) {
+        let mut table = create_table();
+        table.set_header(["RSCP (dBm)"]).add_row([&self.rscp]);
+        println!("{table}");
+    }
+}
+
+#[derive(Debug, Deserialize)]
 pub struct SignalBar {
     pub signalbar: BoxStr,
 }

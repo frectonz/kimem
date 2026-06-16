@@ -15,6 +15,7 @@ async fn main() -> EyreResult<()> {
             GetCommands::NetworkType => router.show::<NetworkType>().await?,
             GetCommands::Plmn => router.show::<SimPlmn>().await?,
             GetCommands::Rssi => router.show::<Rssi>().await?,
+            GetCommands::Rscp => router.show::<Rscp>().await?,
             GetCommands::Signalbar => router.show::<SignalBar>().await?,
             GetCommands::AirtimeBalance => router.show::<AirtimeBalance>().await?,
             GetCommands::WanIpaddr => router.show::<WanIpaddr>().await?,
