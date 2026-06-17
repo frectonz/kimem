@@ -63,6 +63,8 @@ pub enum GetCommands {
     BatteryExists,
     /// Check if power exists.
     PowerExists,
+    /// Fetch messages in SMS inbox.
+    Sms,
 }
 
 #[derive(Subcommand, Debug)]

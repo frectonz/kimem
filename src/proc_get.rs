@@ -1,5 +1,5 @@
 use crate::common::*;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 pub trait ProcGet: serde::de::DeserializeOwned {
     const CMD: &str;
@@ -304,6 +304,72 @@ impl ProcGet for PowerExist {
         table
             .set_header(["Power Exists"])
             .add_row([&self.power_exist]);
+        println!("{table}");
+    }
+}
+
+#[derive(Debug, Serialize)]
+pub struct SmsInboxParams {
+    page: BoxStr,
+    data_per_page: BoxStr,
+    mem_store: BoxStr,
+    tags: BoxStr,
+    order_by: BoxStr,
+}
+
+impl Default for SmsInboxParams {
+    fn default() -> Self {
+        Self {
+            page: "0".into(),
+            data_per_page: "500".into(),
+            mem_store: "1".into(),
+            tags: "10".into(),
+            order_by: "order by id asc".into(),
+        }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct SmsInbox {
+    messages: Vec<Message>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Message {
+    id: BoxStr,
+    number: BoxStr,
+    content: BoxStr,
+    tag: BoxStr,
+    date: BoxStr,
+    #[allow(unused)]
+    draft_group_id: BoxStr,
+}
+
+impl ProcGet for SmsInbox {
+    const CMD: &str = "sms_data_total";
+    type Params = SmsInboxParams;
+
+    fn print_table(&self) {
+        let mut table = create_table();
+
+        table.set_header(["ID", "Number", "Content", "Tag", "Date"]);
+
+        for d in self.messages.iter() {
+            let mut content = decode_ucs2_be(&d.content)
+                .unwrap_or_default()
+                .trim()
+                .to_owned();
+
+            if content.len() > 24 {
+                content.truncate(24);
+                content.push_str("...");
+            }
+
+            let row: [&str; 5] = [&d.id, &d.number, &content, &d.tag, &d.date];
+
+            table.add_row(row);
+        }
+
         println!("{table}");
     }
 }
