@@ -1,4 +1,5 @@
 use crate::*;
+use reqwest::header::REFERER;
 use serde::Serialize;
 use std::net::IpAddr;
 
@@ -89,7 +90,7 @@ impl Router {
             self.client
                 .post(&url)
                 .form(&form)
-                .header("Referer", self.address.as_ref())
+                .header(REFERER, self.address.as_ref())
                 .send()
                 .await
                 .map_err(Into::into)
@@ -150,6 +151,11 @@ impl Router {
 
     pub async fn show<T: ProcGet>(&self) -> EyreResult<()> {
         self.get::<T>().await?.print_table();
+        Ok(())
+    }
+
+    pub async fn execute<T: ProcPost>(&self, params: T::Params) -> EyreResult<()> {
+        self.post_with::<T>(params).await?.print_table();
         Ok(())
     }
 }

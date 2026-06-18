@@ -71,4 +71,6 @@ pub enum GetCommands {
 pub enum PostCommands {
     /// Reboot the router.
     Reboot,
+    /// Delete message from inbox.
+    DeleteSms { msg_id: BoxStr },
 }

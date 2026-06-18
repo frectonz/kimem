@@ -64,3 +64,24 @@ impl ProcPost for RebootDevice {
         println!("Device Rebooted.");
     }
 }
+
+#[derive(Debug, Deserialize)]
+pub struct DeleteSms {
+    pub result: BoxStr,
+}
+
+#[derive(Debug, Serialize, Default)]
+pub struct DeleteSmsParams {
+    pub msg_id: BoxStr,
+}
+
+impl ProcPost for DeleteSms {
+    const GOFORM_ID: &str = "DELETE_SMS";
+    type Params = DeleteSmsParams;
+
+    fn print_table(&self) {
+        let mut table = create_table();
+        table.set_header(["Delete Result"]).add_row([&self.result]);
+        println!("{table}");
+    }
+}

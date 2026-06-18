@@ -28,6 +28,11 @@ async fn main() -> EyreResult<()> {
         },
         TopLevelCommands::Post { command } => match command {
             PostCommands::Reboot => router.reboot().await.print_table(),
+            PostCommands::DeleteSms { msg_id } => {
+                router
+                    .execute::<DeleteSms>(DeleteSmsParams { msg_id })
+                    .await?
+            }
         },
     };
     router.logout().await?;
