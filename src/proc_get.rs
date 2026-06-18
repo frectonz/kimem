@@ -365,7 +365,12 @@ impl ProcGet for SmsInbox {
                 content.push_str("...");
             }
 
-            let row: [&str; 5] = [&d.id, &d.number, &content, &d.tag, &d.date];
+            let datetime = parse_datetime(&d.date)
+                .unwrap()
+                .strftime("%F %r")
+                .to_string();
+
+            let row: [&str; 5] = [&d.id, &d.number, &content, &d.tag, &datetime];
 
             table.add_row(row);
         }
