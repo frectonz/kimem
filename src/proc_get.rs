@@ -345,6 +345,33 @@ pub struct Message {
     draft_group_id: BoxStr,
 }
 
+enum MessageTagStatus {
+    Read,
+    Unread,
+    Sent,
+    Unknown { tag: BoxStr },
+}
+
+impl MessageTagStatus {
+    fn from_tag(tag: &str) -> Self {
+        match tag {
+            "0" => Self::Read,
+            "1" => Self::Unread,
+            "2" => Self::Sent,
+            _ => Self::Unknown { tag: tag.into() },
+        }
+    }
+
+    fn to_string(&self) -> String {
+        match self {
+            MessageTagStatus::Read => "READ".to_owned(),
+            MessageTagStatus::Unread => "UNREAD".to_owned(),
+            MessageTagStatus::Sent => "SENT".to_owned(),
+            MessageTagStatus::Unknown { tag } => format!("UNKNOW({tag})"),
+        }
+    }
+}
+
 impl ProcGet for SmsInbox {
     const CMD: &str = "sms_data_total";
     type Params = SmsInboxParams;
@@ -352,7 +379,7 @@ impl ProcGet for SmsInbox {
     fn print_table(&self) {
         let mut table = create_table();
 
-        table.set_header(["ID", "Number", "Content", "Tag", "Date"]);
+        table.set_header(["ID", "Number", "Content", "Status", "Date"]);
 
         for d in self.messages.iter() {
             let mut content = decode_ucs2_be(&d.content)
@@ -365,12 +392,14 @@ impl ProcGet for SmsInbox {
                 content.push_str("...");
             }
 
+            let tag = MessageTagStatus::from_tag(&d.tag).to_string();
+
             let datetime = parse_datetime(&d.date)
                 .unwrap()
                 .strftime("%F %r")
                 .to_string();
 
-            let row: [&str; 5] = [&d.id, &d.number, &content, &d.tag, &datetime];
+            let row: [&str; 5] = [&d.id, &d.number, &content, &tag, &datetime];
 
             table.add_row(row);
         }
