@@ -65,6 +65,8 @@ pub enum GetCommands {
     WanIpaddr,
     /// Fetch PPP status.
     PppStatus,
+    /// Fetch LAN IP address.
+    LanIpaddr,
     /// Fetch firmware version.
     CrVersion,
     /// Fetch battery percentage.

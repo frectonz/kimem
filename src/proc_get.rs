@@ -327,6 +327,22 @@ impl ProcGet for PppStatus {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct LanIpaddr {
+    pub lan_ipaddr: BoxStr,
+}
+
+impl ProcGet for LanIpaddr {
+    const CMD: &str = "lan_ipaddr";
+    type Params = ();
+
+    fn print_table(&self) {
+        let mut table = create_table();
+        table.set_header(["LAN IP"]).add_row([&self.lan_ipaddr]);
+        println!("{table}");
+    }
+}
+
+#[derive(Debug, Deserialize)]
 pub struct CrVersion {
     pub cr_version: BoxStr,
 }
