@@ -73,4 +73,6 @@ pub enum PostCommands {
     Reboot,
     /// Delete message from inbox.
     DeleteSms { msg_id: BoxStr },
+    /// Delete all message from inbox.
+    DeleteAllSms,
 }

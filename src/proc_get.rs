@@ -331,18 +331,17 @@ impl Default for SmsInboxParams {
 
 #[derive(Debug, Deserialize)]
 pub struct SmsInbox {
-    messages: Vec<Message>,
+    pub messages: Vec<Message>,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Message {
-    id: BoxStr,
-    number: BoxStr,
-    content: BoxStr,
-    tag: BoxStr,
-    date: BoxStr,
-    #[allow(unused)]
-    draft_group_id: BoxStr,
+    pub id: BoxStr,
+    pub number: BoxStr,
+    pub content: BoxStr,
+    pub tag: BoxStr,
+    pub date: BoxStr,
+    pub draft_group_id: BoxStr,
 }
 
 enum MessageTagStatus {

@@ -33,6 +33,22 @@ async fn main() -> EyreResult<()> {
                     .execute::<DeleteSms>(DeleteSmsParams { msg_id })
                     .await?
             }
+            PostCommands::DeleteAllSms => {
+                let msg_ids = router
+                    .get::<SmsInbox>()
+                    .await?
+                    .messages
+                    .into_iter()
+                    .map(|m| m.id)
+                    .collect::<Vec<_>>();
+
+                for msg_id in msg_ids {
+                    println!("Deleting {msg_id}...");
+                    router
+                        .post_with::<DeleteSms>(DeleteSmsParams { msg_id })
+                        .await?;
+                }
+            }
         },
     };
     router.logout().await?;
