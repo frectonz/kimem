@@ -75,6 +75,8 @@ pub enum GetCommands {
     PowerExists,
     /// Fetch messages in SMS inbox.
     Sms,
+    /// Fetch NV ARFCN.
+    NvArfcn,
 }
 
 #[derive(Subcommand, Debug)]

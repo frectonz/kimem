@@ -498,3 +498,19 @@ impl ProcGet for SmsInbox {
         println!("{table}");
     }
 }
+
+#[derive(Debug, Deserialize)]
+pub struct NvArfcn {
+    pub nv_arfcn: BoxStr,
+}
+
+impl ProcGet for NvArfcn {
+    const CMD: &str = "nv_arfcn";
+    type Params = ();
+
+    fn print_table(&self) {
+        let mut table = create_table();
+        table.set_header(["NV ARFCN"]).add_row([&self.nv_arfcn]);
+        println!("{table}");
+    }
+}
