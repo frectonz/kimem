@@ -51,6 +51,8 @@ pub enum GetCommands {
     LteRsrp,
     /// Fetch LTE RSRQ.
     LteRsrq,
+    /// Fetch Cell ID.
+    LteCellId,
     /// Fetch router signal bar.
     Signalbar,
     /// Fetch last cached airtime balance.
