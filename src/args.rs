@@ -47,8 +47,10 @@ pub enum GetCommands {
     Rssi,
     /// Fetch router RSCP in dBm.
     Rscp,
-    /// Fetch LTE RSRP
+    /// Fetch LTE RSRP.
     LteRsrp,
+    /// Fetch LTE RSRQ.
+    LteRsrq,
     /// Fetch router signal bar.
     Signalbar,
     /// Fetch last cached airtime balance.
