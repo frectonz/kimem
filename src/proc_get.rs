@@ -174,6 +174,24 @@ impl ProcGet for Rscp {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct LteRsrp {
+    pub lte_rsrp: BoxStr,
+}
+
+impl ProcGet for LteRsrp {
+    const CMD: &str = "lte_rsrp";
+    type Params = ();
+
+    fn print_table(&self) {
+        let mut table = create_table();
+        table
+            .set_header(["LTE RSRP (dBm)"])
+            .add_row([&self.lte_rsrp]);
+        println!("{table}");
+    }
+}
+
+#[derive(Debug, Deserialize)]
 pub struct SignalBar {
     pub signalbar: BoxStr,
 }
