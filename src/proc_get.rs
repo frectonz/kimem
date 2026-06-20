@@ -246,6 +246,22 @@ impl ProcGet for LteEnodebId {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct LteTac {
+    pub lte_tac: BoxStr,
+}
+
+impl ProcGet for LteTac {
+    const CMD: &str = "lte_tac";
+    type Params = ();
+
+    fn print_table(&self) {
+        let mut table = create_table();
+        table.set_header(["LTE TAC"]).add_row([&self.lte_tac]);
+        println!("{table}");
+    }
+}
+
+#[derive(Debug, Deserialize)]
 pub struct SignalBar {
     pub signalbar: BoxStr,
 }

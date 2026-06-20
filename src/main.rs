@@ -29,6 +29,7 @@ async fn main() -> EyreResult<()> {
             GetCommands::LteRsrq => router.show::<LteRsrq>().await?,
             GetCommands::LteCellId => router.show::<LteCellId>().await?,
             GetCommands::LteEnodebId => router.show::<LteEnodebId>().await?,
+            GetCommands::LteTac => router.show::<LteTac>().await?,
         },
         TopLevelCommands::Post { command } => match command {
             PostCommands::Reboot => router.reboot().await.print_table(),

@@ -55,6 +55,8 @@ pub enum GetCommands {
     LteCellId,
     /// Fetch eNodeB ID.
     LteEnodebId,
+    /// Fetch Tracking Area Code.
+    LteTac,
     /// Fetch router signal bar.
     Signalbar,
     /// Fetch last cached airtime balance.
