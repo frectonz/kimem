@@ -362,6 +362,23 @@ impl ProcGet for LocalDomain {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct DhcpStart {
+    #[serde(rename = "dhcpStart")]
+    pub dhcp_start: BoxStr,
+}
+
+impl ProcGet for DhcpStart {
+    const CMD: &str = "dhcpStart";
+    type Params = ();
+
+    fn print_table(&self) {
+        let mut table = create_table();
+        table.set_header(["DHCP Start"]).add_row([&self.dhcp_start]);
+        println!("{table}");
+    }
+}
+
+#[derive(Debug, Deserialize)]
 pub struct CrVersion {
     pub cr_version: BoxStr,
 }
