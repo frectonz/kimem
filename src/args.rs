@@ -97,6 +97,8 @@ pub enum GetCommands {
     PrimarySsidAuthMode,
     /// Fetch secondary SSID's auth mode.
     SecondarySsidAuthMode,
+    /// Fetch monthly RX bytes.
+    MonthlyRx,
 }
 
 #[derive(Subcommand, Debug)]

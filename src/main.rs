@@ -41,6 +41,7 @@ async fn main() -> EyreResult<()> {
             GetCommands::SecondarySsidPsk => router.show::<SecondarySsidPsk>().await?,
             GetCommands::PrimarySsidAuthMode => router.show::<PrimarySsidAuthMode>().await?,
             GetCommands::SecondarySsidAuthMode => router.show::<SecondarySsidAuthMode>().await?,
+            GetCommands::MonthlyRx => router.show::<MonthlyRx>().await?,
         },
         TopLevelCommands::Post { command } => match command {
             PostCommands::Reboot => router.reboot().await.print_table(),

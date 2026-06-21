@@ -697,3 +697,23 @@ impl ProcGet for SecondarySsidAuthMode {
         println!("{table}");
     }
 }
+
+#[derive(Debug, Deserialize)]
+pub struct MonthlyRx {
+    pub monthly_rx_bytes: BoxStr,
+}
+
+impl ProcGet for MonthlyRx {
+    const CMD: &str = "monthly_rx_bytes";
+    type Params = ();
+
+    fn print_table(&self) {
+        let mut table = create_table();
+
+        let size = self.monthly_rx_bytes.parse::<usize>().unwrap();
+        let size = humansize::format_size(size, humansize::DECIMAL);
+
+        table.set_header(["Monthly RX Bytes"]).add_row([&size]);
+        println!("{table}");
+    }
+}
