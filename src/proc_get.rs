@@ -379,6 +379,23 @@ impl ProcGet for DhcpStart {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct DhcpEnd {
+    #[serde(rename = "dhcpEnd")]
+    pub dhcp_end: BoxStr,
+}
+
+impl ProcGet for DhcpEnd {
+    const CMD: &str = "dhcpEnd";
+    type Params = ();
+
+    fn print_table(&self) {
+        let mut table = create_table();
+        table.set_header(["DHCP End"]).add_row([&self.dhcp_end]);
+        println!("{table}");
+    }
+}
+
+#[derive(Debug, Deserialize)]
 pub struct CrVersion {
     pub cr_version: BoxStr,
 }

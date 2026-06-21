@@ -71,6 +71,8 @@ pub enum GetCommands {
     LocalDomain,
     /// Fetch DHCP start.
     DhcpStart,
+    /// Fetch DHCP end.
+    DhcpEnd,
     /// Fetch firmware version.
     CrVersion,
     /// Fetch battery percentage.
