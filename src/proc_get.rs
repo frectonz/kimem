@@ -657,3 +657,43 @@ impl ProcGet for SecondarySsidPsk {
         println!("{table}");
     }
 }
+
+#[derive(Debug, Deserialize)]
+pub struct PrimarySsidAuthMode {
+    #[serde(rename = "AuthMode")]
+    pub auth_mode: BoxStr,
+}
+
+impl ProcGet for PrimarySsidAuthMode {
+    const CMD: &str = "AuthMode";
+    type Params = ();
+
+    fn print_table(&self) {
+        let mut table = create_table();
+
+        table
+            .set_header(["Primary SSID Auth Mode"])
+            .add_row([&self.auth_mode]);
+        println!("{table}");
+    }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct SecondarySsidAuthMode {
+    #[serde(rename = "m_AuthMode")]
+    pub m_auth_mode: BoxStr,
+}
+
+impl ProcGet for SecondarySsidAuthMode {
+    const CMD: &str = "m_AuthMode";
+    type Params = ();
+
+    fn print_table(&self) {
+        let mut table = create_table();
+
+        table
+            .set_header(["Secondary SSID Auth Mode"])
+            .add_row([&self.m_auth_mode]);
+        println!("{table}");
+    }
+}
