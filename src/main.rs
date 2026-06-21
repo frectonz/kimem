@@ -47,7 +47,7 @@ async fn main() -> EyreResult<()> {
             GetCommands::RealtimeTx => router.show::<RealtimeTx>().await?,
         },
         TopLevelCommands::Post { command } => match command {
-            PostCommands::Reboot => router.reboot().await.print_table(),
+            PostCommands::Reboot => router.reboot().await.print_table()?,
             PostCommands::DeleteSms { msg_id } => {
                 router
                     .execute::<DeleteSms>(DeleteSmsParams { msg_id })

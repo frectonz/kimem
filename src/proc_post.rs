@@ -5,7 +5,7 @@ pub trait ProcPost: serde::de::DeserializeOwned {
     const GOFORM_ID: &str;
     type Params: serde::ser::Serialize + Default;
 
-    fn print_table(&self);
+    fn print_table(&self) -> EyreResult<()>;
 }
 
 #[derive(Debug, Serialize, Default)]
@@ -26,7 +26,7 @@ impl ProcPost for Login {
     const GOFORM_ID: &str = "LOGIN";
     type Params = LoginParams;
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
 
         table
@@ -34,6 +34,7 @@ impl ProcPost for Login {
             .add_row([&self.result, &self.power, &self.unique_login_credentials]);
 
         println!("{table}");
+        Ok(())
     }
 }
 
@@ -46,10 +47,12 @@ impl ProcPost for Logout {
     const GOFORM_ID: &str = "LOGOUT";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
         table.set_header(["Logout Result"]).add_row([&self.result]);
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -60,8 +63,9 @@ impl ProcPost for RebootDevice {
     const GOFORM_ID: &str = "REBOOT_DEVICE";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         println!("Device Rebooted.");
+        Ok(())
     }
 }
 
@@ -79,9 +83,11 @@ impl ProcPost for DeleteSms {
     const GOFORM_ID: &str = "DELETE_SMS";
     type Params = DeleteSmsParams;
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
         table.set_header(["Delete Result"]).add_row([&self.result]);
         println!("{table}");
+
+        Ok(())
     }
 }

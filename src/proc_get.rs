@@ -5,7 +5,7 @@ pub trait ProcGet: serde::de::DeserializeOwned {
     const CMD: &str;
     type Params: serde::ser::Serialize + Default;
 
-    fn print_table(&self);
+    fn print_table(&self) -> EyreResult<()>;
 }
 
 #[derive(Debug, Deserialize)]
@@ -17,7 +17,7 @@ impl ProcGet for GetRandomLogin {
     const CMD: &str = "get_random_login";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
 
         table
@@ -25,6 +25,8 @@ impl ProcGet for GetRandomLogin {
             .add_row([&self.random_login]);
 
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -50,7 +52,7 @@ impl ProcGet for StationList {
     const CMD: &str = "station_list";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
 
         table.set_header([
@@ -72,6 +74,8 @@ impl ProcGet for StationList {
         }
 
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -84,10 +88,12 @@ impl ProcGet for Imei {
     const CMD: &str = "imei";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
         table.set_header(["IMEI"]).add_row([&self.imei]);
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -100,10 +106,12 @@ impl ProcGet for SimImsi {
     const CMD: &str = "sim_imsi";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
         table.set_header(["SIM IMSI"]).add_row([&self.sim_imsi]);
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -116,12 +124,14 @@ impl ProcGet for NetworkType {
     const CMD: &str = "network_type";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
         table
             .set_header(["Network Type"])
             .add_row([&self.network_type]);
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -134,10 +144,12 @@ impl ProcGet for SimPlmn {
     const CMD: &str = "sim_plmn";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
         table.set_header(["SIM PLMN"]).add_row([&self.sim_plmn]);
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -150,10 +162,12 @@ impl ProcGet for Rssi {
     const CMD: &str = "rssi";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
         table.set_header(["RSSI (dBm)"]).add_row([&self.rssi]);
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -166,10 +180,12 @@ impl ProcGet for Rscp {
     const CMD: &str = "rscp";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
         table.set_header(["RSCP (dBm)"]).add_row([&self.rscp]);
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -182,12 +198,14 @@ impl ProcGet for LteRsrq {
     const CMD: &str = "lte_rsrq";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
         table
             .set_header(["LTE RSRQ (dBm)"])
             .add_row([&self.lte_rsrq]);
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -200,12 +218,16 @@ impl ProcGet for LteRsrp {
     const CMD: &str = "lte_rsrp";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
+
         table
             .set_header(["LTE RSRP (dBm)"])
             .add_row([&self.lte_rsrp]);
+
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -218,12 +240,16 @@ impl ProcGet for LteCellId {
     const CMD: &str = "lte_cellid";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
+
         table
             .set_header(["LTE Cell ID"])
             .add_row([&self.lte_cellid]);
+
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -236,12 +262,16 @@ impl ProcGet for LteEnodebId {
     const CMD: &str = "lte_enodebid";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
+
         table
             .set_header(["LTE eNodeB ID"])
             .add_row([&self.lte_enodebid]);
+
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -254,10 +284,12 @@ impl ProcGet for LteTac {
     const CMD: &str = "lte_tac";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
         table.set_header(["LTE TAC"]).add_row([&self.lte_tac]);
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -270,10 +302,12 @@ impl ProcGet for SignalBar {
     const CMD: &str = "signalbar";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
         table.set_header(["Signal Bar"]).add_row([&self.signalbar]);
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -286,11 +320,15 @@ impl ProcGet for AirtimeBalance {
     const CMD: &str = "airtime_balance";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
-        let balance = decode_ucs2_be(&self.airtime_balance).unwrap_or_default();
+
+        let balance = decode_ucs2_be(&self.airtime_balance)?;
         table.set_header(["Airtime Balance"]).add_row([&balance]);
+
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -303,10 +341,12 @@ impl ProcGet for WanIpaddr {
     const CMD: &str = "wan_ipaddr";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
         table.set_header(["WAN IP"]).add_row([&self.wan_ipaddr]);
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -319,10 +359,12 @@ impl ProcGet for PppStatus {
     const CMD: &str = "ppp_status";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
         table.set_header(["PPP Status"]).add_row([&self.ppp_status]);
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -335,10 +377,12 @@ impl ProcGet for LanIpaddr {
     const CMD: &str = "lan_ipaddr";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
         table.set_header(["LAN IP"]).add_row([&self.lan_ipaddr]);
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -352,12 +396,16 @@ impl ProcGet for LocalDomain {
     const CMD: &str = "LocalDomain";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
+
         table
             .set_header(["Local Domain"])
             .add_row([&self.local_domain]);
+
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -371,10 +419,12 @@ impl ProcGet for DhcpStart {
     const CMD: &str = "dhcpStart";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
         table.set_header(["DHCP Start"]).add_row([&self.dhcp_start]);
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -388,10 +438,12 @@ impl ProcGet for DhcpEnd {
     const CMD: &str = "dhcpEnd";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
         table.set_header(["DHCP End"]).add_row([&self.dhcp_end]);
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -404,10 +456,12 @@ impl ProcGet for CrVersion {
     const CMD: &str = "cr_version";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
         table.set_header(["CR Version"]).add_row([&self.cr_version]);
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -420,12 +474,16 @@ impl ProcGet for BatteryPercentage {
     const CMD: &str = "battery_percentage";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
+
         table
             .set_header(["Battery Percentage"])
             .add_row([&self.battery_percentage]);
+
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -438,12 +496,16 @@ impl ProcGet for BatteryExist {
     const CMD: &str = "battery_exist";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
+
         table
             .set_header(["Battery Exists"])
             .add_row([&self.battery_exist]);
+
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -456,12 +518,16 @@ impl ProcGet for PowerExist {
     const CMD: &str = "power_exist";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
+
         table
             .set_header(["Power Exists"])
             .add_row([&self.power_exist]);
+
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -532,39 +598,62 @@ impl std::fmt::Display for MessageTagStatus {
     }
 }
 
+struct Datetime {
+    datetime: jiff::Zoned,
+}
+
+impl Datetime {
+    /// The timezone part can be ignored because it is a lie. It
+    /// either says +8 or +12, but the actual time is always in GMT+3.
+    /// Examples
+    /// 26,06,05,13,06,24,+8
+    /// 26,06,18,16,35,06,+12
+    pub fn parse(datetime: &str) -> EyreResult<Self> {
+        let datetime = datetime.trim_end_matches(",+8").trim_end_matches(",+12");
+        let datetime = format!("{datetime},Africa/Addis_Ababa");
+        let datetime = jiff::Zoned::strptime("%y,%m,%d,%H,%M,%S,%Q", datetime)?;
+        Ok(Self { datetime })
+    }
+}
+
+impl std::fmt::Display for Datetime {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let datetime = self.datetime.strftime("%F %r");
+        write!(f, "{datetime}")
+    }
+}
+
 impl ProcGet for SmsInbox {
     const CMD: &str = "sms_data_total";
     type Params = SmsInboxParams;
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
 
         table.set_header(["ID", "Number", "Content", "Status", "Date"]);
 
         for d in self.messages.iter() {
-            let mut content = decode_ucs2_be(&d.content)
-                .unwrap_or_default()
-                .trim()
-                .to_owned();
-
+            let mut content = decode_ucs2_be(&d.content)?.trim().to_owned();
             if content.len() > 24 {
                 content.truncate(24);
-                content.push_str("...");
-            }
+                content = content.trim_end().to_owned()
+            };
 
             let tag = MessageTagStatus::from_tag(&d.tag).to_string();
+            let datetime = Datetime::parse(&d.date)?.to_string();
 
-            let datetime = parse_datetime(&d.date)
-                .unwrap()
-                .strftime("%F %r")
-                .to_string();
-
-            let row: [&str; 5] = [&d.id, &d.number, &content, &tag, &datetime];
-
-            table.add_row(row);
+            table.add_row([
+                d.id.as_ref(),
+                d.number.as_ref(),
+                content.as_str(),
+                tag.as_str(),
+                datetime.as_str(),
+            ]);
         }
 
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -577,10 +666,12 @@ impl ProcGet for NvArfcn {
     const CMD: &str = "nv_arfcn";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
         table.set_header(["NV ARFCN"]).add_row([&self.nv_arfcn]);
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -594,10 +685,12 @@ impl ProcGet for PrimarySsid {
     const CMD: &str = "SSID1";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
         table.set_header(["Primary SSID"]).add_row([&self.ssid1]);
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -611,10 +704,12 @@ impl ProcGet for SecondarySsid {
     const CMD: &str = "m_SSID";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
         table.set_header(["Secondary SSID"]).add_row([&self.m_ssid]);
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -628,13 +723,15 @@ impl ProcGet for PrimarySsidPsk {
     const CMD: &str = "WPAPSK1_encode";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
 
-        let psk = b64_decode(&self.wpapsk1_encode).unwrap();
-
+        let psk = b64_decode(&self.wpapsk1_encode)?;
         table.set_header(["Primary SSID Password"]).add_row([psk]);
+
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -648,13 +745,15 @@ impl ProcGet for SecondarySsidPsk {
     const CMD: &str = "m_WPAPSK1_encode";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
 
-        let psk = b64_decode(&self.m_wpapsk1_encode).unwrap();
-
+        let psk = b64_decode(&self.m_wpapsk1_encode)?;
         table.set_header(["Secondary SSID Password"]).add_row([psk]);
+
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -668,13 +767,16 @@ impl ProcGet for PrimarySsidAuthMode {
     const CMD: &str = "AuthMode";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
 
         table
             .set_header(["Primary SSID Auth Mode"])
             .add_row([&self.auth_mode]);
+
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -688,13 +790,16 @@ impl ProcGet for SecondarySsidAuthMode {
     const CMD: &str = "m_AuthMode";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
 
         table
             .set_header(["Secondary SSID Auth Mode"])
             .add_row([&self.m_auth_mode]);
+
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -707,14 +812,16 @@ impl ProcGet for MonthlyRx {
     const CMD: &str = "monthly_rx_bytes";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
 
-        let size = self.monthly_rx_bytes.parse::<usize>().unwrap();
+        let size = self.monthly_rx_bytes.parse::<usize>()?;
         let size = humansize::format_size(size, humansize::DECIMAL);
 
         table.set_header(["Monthly RX"]).add_row([&size]);
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -727,14 +834,16 @@ impl ProcGet for MonthlyTx {
     const CMD: &str = "monthly_tx_bytes";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
 
-        let size = self.monthly_tx_bytes.parse::<usize>().unwrap();
+        let size = self.monthly_tx_bytes.parse::<usize>()?;
         let size = humansize::format_size(size, humansize::DECIMAL);
 
         table.set_header(["Monthly TX"]).add_row([&size]);
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -747,14 +856,16 @@ impl ProcGet for RealtimeRx {
     const CMD: &str = "realtime_rx_bytes";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
 
-        let size = self.realtime_rx_bytes.parse::<usize>().unwrap();
+        let size = self.realtime_rx_bytes.parse::<usize>()?;
         let size = humansize::format_size(size, humansize::DECIMAL);
 
         table.set_header(["Realtime RX"]).add_row([&size]);
         println!("{table}");
+
+        Ok(())
     }
 }
 
@@ -767,13 +878,15 @@ impl ProcGet for RealtimeTx {
     const CMD: &str = "realtime_tx_bytes";
     type Params = ();
 
-    fn print_table(&self) {
+    fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
 
-        let size = self.realtime_tx_bytes.parse::<usize>().unwrap();
+        let size = self.realtime_tx_bytes.parse::<usize>()?;
         let size = humansize::format_size(size, humansize::DECIMAL);
 
         table.set_header(["Realtime TX"]).add_row([&size]);
         println!("{table}");
+
+        Ok(())
     }
 }

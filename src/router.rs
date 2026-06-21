@@ -150,12 +150,12 @@ impl Router {
     }
 
     pub async fn show<T: ProcGet>(&self) -> EyreResult<()> {
-        self.get::<T>().await?.print_table();
+        self.get::<T>().await?.print_table()?;
         Ok(())
     }
 
     pub async fn execute<T: ProcPost>(&self, params: T::Params) -> EyreResult<()> {
-        self.post_with::<T>(params).await?.print_table();
+        self.post_with::<T>(params).await?.print_table()?;
         Ok(())
     }
 }
