@@ -89,6 +89,10 @@ pub enum GetCommands {
     PrimarySsid,
     /// Fetch secondary SSID.
     SecondarySsid,
+    /// Fetch primary SSID's password.
+    PrimarySsidPsk,
+    /// Fetch secondary SSID's password.
+    SecondarySsidPsk,
 }
 
 #[derive(Subcommand, Debug)]

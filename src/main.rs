@@ -37,6 +37,8 @@ async fn main() -> EyreResult<()> {
             GetCommands::DhcpEnd => router.show::<DhcpEnd>().await?,
             GetCommands::PrimarySsid => router.show::<PrimarySsid>().await?,
             GetCommands::SecondarySsid => router.show::<SecondarySsid>().await?,
+            GetCommands::PrimarySsidPsk => router.show::<PrimarySsidPsk>().await?,
+            GetCommands::SecondarySsidPsk => router.show::<SecondarySsidPsk>().await?,
         },
         TopLevelCommands::Post { command } => match command {
             PostCommands::Reboot => router.reboot().await.print_table(),

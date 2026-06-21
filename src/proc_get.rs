@@ -617,3 +617,43 @@ impl ProcGet for SecondarySsid {
         println!("{table}");
     }
 }
+
+#[derive(Debug, Deserialize)]
+pub struct PrimarySsidPsk {
+    #[serde(rename = "WPAPSK1_encode")]
+    pub wpapsk1_encode: BoxStr,
+}
+
+impl ProcGet for PrimarySsidPsk {
+    const CMD: &str = "WPAPSK1_encode";
+    type Params = ();
+
+    fn print_table(&self) {
+        let mut table = create_table();
+
+        let psk = b64_decode(&self.wpapsk1_encode).unwrap();
+
+        table.set_header(["Primary SSID Password"]).add_row([psk]);
+        println!("{table}");
+    }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct SecondarySsidPsk {
+    #[serde(rename = "m_WPAPSK1_encode")]
+    pub m_wpapsk1_encode: BoxStr,
+}
+
+impl ProcGet for SecondarySsidPsk {
+    const CMD: &str = "m_WPAPSK1_encode";
+    type Params = ();
+
+    fn print_table(&self) {
+        let mut table = create_table();
+
+        let psk = b64_decode(&self.m_wpapsk1_encode).unwrap();
+
+        table.set_header(["Secondary SSID Password"]).add_row([psk]);
+        println!("{table}");
+    }
+}

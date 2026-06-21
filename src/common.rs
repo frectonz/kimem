@@ -11,6 +11,15 @@ pub fn b64(input: &str) -> BoxStr {
         .into_boxed_str()
 }
 
+pub fn b64_decode(input: &str) -> EyreResult<BoxStr> {
+    use base64::Engine;
+
+    let decoded = base64::prelude::BASE64_STANDARD.decode(input)?;
+    let decocded = String::from_utf8(decoded)?.into_boxed_str();
+
+    Ok(decocded)
+}
+
 pub fn sha256(input: &str) -> BoxStr {
     use sha2::Digest;
 
