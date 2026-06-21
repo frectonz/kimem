@@ -85,6 +85,10 @@ pub enum GetCommands {
     Sms,
     /// Fetch NV ARFCN.
     NvArfcn,
+    /// Fetch primary SSID.
+    PrimarySsid,
+    /// Fetch secondary SSID.
+    SecondarySsid,
 }
 
 #[derive(Subcommand, Debug)]

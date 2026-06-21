@@ -583,3 +583,37 @@ impl ProcGet for NvArfcn {
         println!("{table}");
     }
 }
+
+#[derive(Debug, Deserialize)]
+pub struct PrimarySsid {
+    #[serde(rename = "SSID1")]
+    pub ssid1: BoxStr,
+}
+
+impl ProcGet for PrimarySsid {
+    const CMD: &str = "SSID1";
+    type Params = ();
+
+    fn print_table(&self) {
+        let mut table = create_table();
+        table.set_header(["Primary SSID"]).add_row([&self.ssid1]);
+        println!("{table}");
+    }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct SecondarySsid {
+    #[serde(rename = "m_SSID")]
+    pub m_ssid: BoxStr,
+}
+
+impl ProcGet for SecondarySsid {
+    const CMD: &str = "m_SSID";
+    type Params = ();
+
+    fn print_table(&self) {
+        let mut table = create_table();
+        table.set_header(["Secondary SSID"]).add_row([&self.m_ssid]);
+        println!("{table}");
+    }
+}
