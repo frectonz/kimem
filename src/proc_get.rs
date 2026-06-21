@@ -713,7 +713,7 @@ impl ProcGet for MonthlyRx {
         let size = self.monthly_rx_bytes.parse::<usize>().unwrap();
         let size = humansize::format_size(size, humansize::DECIMAL);
 
-        table.set_header(["Monthly RX Bytes"]).add_row([&size]);
+        table.set_header(["Monthly RX"]).add_row([&size]);
         println!("{table}");
     }
 }
@@ -733,7 +733,7 @@ impl ProcGet for MonthlyTx {
         let size = self.monthly_tx_bytes.parse::<usize>().unwrap();
         let size = humansize::format_size(size, humansize::DECIMAL);
 
-        table.set_header(["Monthly TX Bytes"]).add_row([&size]);
+        table.set_header(["Monthly TX"]).add_row([&size]);
         println!("{table}");
     }
 }
@@ -753,7 +753,7 @@ impl ProcGet for RealtimeRx {
         let size = self.realtime_rx_bytes.parse::<usize>().unwrap();
         let size = humansize::format_size(size, humansize::DECIMAL);
 
-        table.set_header(["Realtime RX Bytes"]).add_row([&size]);
+        table.set_header(["Realtime RX"]).add_row([&size]);
         println!("{table}");
     }
 }
@@ -773,7 +773,7 @@ impl ProcGet for RealtimeTx {
         let size = self.realtime_tx_bytes.parse::<usize>().unwrap();
         let size = humansize::format_size(size, humansize::DECIMAL);
 
-        table.set_header(["Realtime TX Bytes"]).add_row([&size]);
+        table.set_header(["Realtime TX"]).add_row([&size]);
         println!("{table}");
     }
 }
