@@ -128,8 +128,8 @@ impl Router {
         let nonce = random_login.random_login;
 
         let form = LoginParams {
-            username: b64(&self.username),
-            password: b64(&sha256(&format!("{nonce}{password}"))),
+            username: b64_encode(&self.username),
+            password: b64_encode(&sha256_encode(&format!("{nonce}{password}"))),
             unique_login_credentials: "1".into(),
         };
 

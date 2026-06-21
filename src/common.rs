@@ -1,7 +1,7 @@
 pub type BoxStr = Box<str>;
 pub type EyreResult<T> = color_eyre::Result<T>;
 
-pub fn b64(input: &str) -> BoxStr {
+pub fn b64_encode(input: &str) -> BoxStr {
     use base64::Engine;
 
     base64::prelude::BASE64_STANDARD
@@ -18,20 +18,14 @@ pub fn b64_decode(input: &str) -> EyreResult<BoxStr> {
     Ok(decocded)
 }
 
-pub fn sha256(input: &str) -> BoxStr {
+pub fn sha256_encode(input: &str) -> BoxStr {
     use sha2::Digest;
 
     let hash = sha2::Sha256::digest(input);
     hex::encode(hash).into_boxed_str()
 }
 
-pub fn create_table() -> comfy_table::Table {
-    let mut table = comfy_table::Table::new();
-    table.load_preset(comfy_table::presets::UTF8_FULL_CONDENSED);
-    table
-}
-
-pub fn decode_ucs2_be(hex_str: &str) -> EyreResult<String> {
+pub fn ucs2_decode(hex_str: &str) -> EyreResult<String> {
     let bytes = hex::decode(hex_str)?;
     if bytes.len() % 2 != 0 {
         color_eyre::eyre::bail!("non even length");
@@ -45,4 +39,10 @@ pub fn decode_ucs2_be(hex_str: &str) -> EyreResult<String> {
     let str = String::from_utf16(&units)?;
 
     Ok(str)
+}
+
+pub fn create_table() -> comfy_table::Table {
+    let mut table = comfy_table::Table::new();
+    table.load_preset(comfy_table::presets::UTF8_FULL_CONDENSED);
+    table
 }

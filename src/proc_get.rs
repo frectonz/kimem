@@ -323,7 +323,7 @@ impl ProcGet for AirtimeBalance {
     fn print_table(&self) -> EyreResult<()> {
         let mut table = create_table();
 
-        let balance = decode_ucs2_be(&self.airtime_balance)?;
+        let balance = ucs2_decode(&self.airtime_balance)?;
         table.set_header(["Airtime Balance"]).add_row([&balance]);
 
         println!("{table}");
@@ -633,7 +633,7 @@ impl ProcGet for SmsInbox {
         table.set_header(["ID", "Number", "Content", "Status", "Date"]);
 
         for d in self.messages.iter() {
-            let mut content = decode_ucs2_be(&d.content)?.trim().to_owned();
+            let mut content = ucs2_decode(&d.content)?.trim().to_owned();
             if content.len() > 24 {
                 content.truncate(24);
                 content = content.trim_end().to_owned()
