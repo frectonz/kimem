@@ -44,6 +44,7 @@ async fn main() -> EyreResult<()> {
             GetCommands::MonthlyRx => router.show::<MonthlyRx>().await?,
             GetCommands::MonthlyTx => router.show::<MonthlyTx>().await?,
             GetCommands::RealtimeRx => router.show::<RealtimeRx>().await?,
+            GetCommands::RealtimeTx => router.show::<RealtimeTx>().await?,
         },
         TopLevelCommands::Post { command } => match command {
             PostCommands::Reboot => router.reboot().await.print_table(),
