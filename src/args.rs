@@ -73,8 +73,6 @@ pub enum GetCommands {
     DhcpStart,
     /// Fetch DHCP end.
     DhcpEnd,
-    /// Fetch firmware version.
-    CrVersion,
     /// Fetch battery percentage.
     BatteryPercentage,
     /// Check if batttery exists.
@@ -105,6 +103,10 @@ pub enum GetCommands {
     RealtimeRx,
     /// Fetch realtime TX bytes.
     RealtimeTx,
+    /// Fetch firmware version.
+    CrVersion,
+    /// Fetch hardware version.
+    HardwareVersion,
 }
 
 #[derive(Subcommand, Debug)]

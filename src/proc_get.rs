@@ -448,24 +448,6 @@ impl ProcGet for DhcpEnd {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct CrVersion {
-    pub cr_version: BoxStr,
-}
-
-impl ProcGet for CrVersion {
-    const CMD: &str = "cr_version";
-    type Params = ();
-
-    fn print_table(&self) -> EyreResult<()> {
-        let mut table = create_table();
-        table.set_header(["CR Version"]).add_row([&self.cr_version]);
-        println!("{table}");
-
-        Ok(())
-    }
-}
-
-#[derive(Debug, Deserialize)]
 pub struct BatteryPercentage {
     pub battery_percentage: BoxStr,
 }
@@ -885,6 +867,46 @@ impl ProcGet for RealtimeTx {
         let size = humansize::format_size(size, humansize::DECIMAL);
 
         table.set_header(["Realtime TX"]).add_row([&size]);
+        println!("{table}");
+
+        Ok(())
+    }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CrVersion {
+    pub cr_version: BoxStr,
+}
+
+impl ProcGet for CrVersion {
+    const CMD: &str = "cr_version";
+    type Params = ();
+
+    fn print_table(&self) -> EyreResult<()> {
+        let mut table = create_table();
+        table.set_header(["CR Version"]).add_row([&self.cr_version]);
+        println!("{table}");
+
+        Ok(())
+    }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct HardwareVersion {
+    pub hardware_version: BoxStr,
+}
+
+impl ProcGet for HardwareVersion {
+    const CMD: &str = "hardware_version";
+    type Params = ();
+
+    fn print_table(&self) -> EyreResult<()> {
+        let mut table = create_table();
+
+        table
+            .set_header(["Hardware Version"])
+            .add_row([&self.hardware_version]);
+
         println!("{table}");
 
         Ok(())
