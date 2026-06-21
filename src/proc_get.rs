@@ -569,14 +569,12 @@ impl MessageTagStatus {
 
 impl std::fmt::Display for MessageTagStatus {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let s = match self {
-            MessageTagStatus::Read => "READ".to_owned(),
-            MessageTagStatus::Unread => "UNREAD".to_owned(),
-            MessageTagStatus::Sent => "SENT".to_owned(),
-            MessageTagStatus::Unknown { tag } => format!("UNKNOW({tag})"),
-        };
-
-        write!(f, "{s}")
+        match self {
+            MessageTagStatus::Read => write!(f, "READ"),
+            MessageTagStatus::Unread => write!(f, "UNREAD"),
+            MessageTagStatus::Sent => write!(f, "SENT"),
+            MessageTagStatus::Unknown { tag } => write!(f, "UNKNOW({tag})"),
+        }
     }
 }
 
