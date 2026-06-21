@@ -32,6 +32,7 @@ async fn main() -> EyreResult<()> {
             GetCommands::LteTac => router.show::<LteTac>().await?,
             GetCommands::NvArfcn => router.show::<NvArfcn>().await?,
             GetCommands::LanIpaddr => router.show::<LanIpaddr>().await?,
+            GetCommands::LocalDomain => router.show::<LocalDomain>().await?,
         },
         TopLevelCommands::Post { command } => match command {
             PostCommands::Reboot => router.reboot().await.print_table(),

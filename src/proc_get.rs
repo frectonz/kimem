@@ -343,6 +343,25 @@ impl ProcGet for LanIpaddr {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct LocalDomain {
+    #[serde(rename = "LocalDomain")]
+    pub local_domain: BoxStr,
+}
+
+impl ProcGet for LocalDomain {
+    const CMD: &str = "LocalDomain";
+    type Params = ();
+
+    fn print_table(&self) {
+        let mut table = create_table();
+        table
+            .set_header(["Local Domain"])
+            .add_row([&self.local_domain]);
+        println!("{table}");
+    }
+}
+
+#[derive(Debug, Deserialize)]
 pub struct CrVersion {
     pub cr_version: BoxStr,
 }

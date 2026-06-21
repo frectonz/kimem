@@ -67,6 +67,8 @@ pub enum GetCommands {
     PppStatus,
     /// Fetch LAN IP address.
     LanIpaddr,
+    /// Fetch local domain.
+    LocalDomain,
     /// Fetch firmware version.
     CrVersion,
     /// Fetch battery percentage.
