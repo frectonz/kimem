@@ -737,3 +737,23 @@ impl ProcGet for MonthlyTx {
         println!("{table}");
     }
 }
+
+#[derive(Debug, Deserialize)]
+pub struct RealtimeRx {
+    pub realtime_rx_bytes: BoxStr,
+}
+
+impl ProcGet for RealtimeRx {
+    const CMD: &str = "realtime_rx_bytes";
+    type Params = ();
+
+    fn print_table(&self) {
+        let mut table = create_table();
+
+        let size = self.realtime_rx_bytes.parse::<usize>().unwrap();
+        let size = humansize::format_size(size, humansize::DECIMAL);
+
+        table.set_header(["Realtime RX Bytes"]).add_row([&size]);
+        println!("{table}");
+    }
+}

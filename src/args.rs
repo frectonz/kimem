@@ -101,6 +101,8 @@ pub enum GetCommands {
     MonthlyRx,
     /// Fetch monthly TX bytes.
     MonthlyTx,
+    /// Fetch realtime RX bytes.
+    RealtimeRx,
 }
 
 #[derive(Subcommand, Debug)]
