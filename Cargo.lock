@@ -931,6 +931,7 @@ dependencies = [
  "jiff",
  "reqwest",
  "serde",
+ "serde_json",
  "serde_urlencoded",
  "sha2",
  "tokio",
