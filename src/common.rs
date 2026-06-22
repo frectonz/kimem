@@ -76,9 +76,8 @@ impl Datetime {
     }
 
     pub fn router_time(&self) -> BoxStr {
-        let datetime = self.datetime.strftime("%y,%m,%d,%H,%M,%S");
-        // lets use the chinese timezone for this
-        format!("{datetime},+8").into_boxed_str()
+        let datetime = self.datetime.strftime("%y;%m;%d;%H;%M;%S");
+        format!("{datetime};+3").into_boxed_str()
     }
 }
 
