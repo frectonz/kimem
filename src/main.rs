@@ -46,6 +46,7 @@ async fn main() -> EyreResult<()> {
             GetCommands::RealtimeRx => router.show::<RealtimeRx>().await?,
             GetCommands::RealtimeTx => router.show::<RealtimeTx>().await?,
             GetCommands::HardwareVersion => router.show::<HardwareVersion>().await?,
+            GetCommands::SystemStatus => router.system_status().await?.print_table()?,
         },
         TopLevelCommands::Post { command } => match command {
             PostCommands::Reboot => router.reboot().await.print_table()?,

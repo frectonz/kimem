@@ -107,6 +107,8 @@ pub enum GetCommands {
     CrVersion,
     /// Fetch hardware version.
     HardwareVersion,
+    /// Fetch system status.
+    SystemStatus,
 }
 
 #[derive(Subcommand, Debug)]

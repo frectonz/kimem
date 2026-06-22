@@ -158,4 +158,16 @@ impl Router {
         self.post_with::<T>(params).await?.print_table()?;
         Ok(())
     }
+
+    pub async fn system_status(&self) -> EyreResult<SystemStatus> {
+        let resp = self.get_text::<SystemStatus>().await?;
+
+        // We have to use this trick to handle duplicate keys.
+        // The system status cmd responds with duplicate keys in the
+        // JSON response.
+        let value: serde_json::Value = serde_json::from_str(&resp)?;
+        let value: SystemStatus = serde_json::from_value(value)?;
+
+        Ok(value)
+    }
 }

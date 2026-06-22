@@ -910,3 +910,96 @@ impl ProcGet for HardwareVersion {
         Ok(())
     }
 }
+
+#[derive(Debug, Deserialize)]
+pub struct SystemStatus {
+    pub platform_version: BoxStr,
+    pub sim_status: BoxStr,
+    pub network_type: BoxStr,
+    pub service_status: BoxStr,
+    pub plmn: BoxStr,
+    pub plmn_id: BoxStr,
+    pub cell_id: BoxStr,
+    pub enode_id: BoxStr,
+    pub w_cellid: BoxStr,
+    pub w_rncid: BoxStr,
+    pub gsm_cellid: BoxStr,
+    #[serde(rename = "dwCellId")]
+    pub dw_cell_id: BoxStr,
+    pub phy_cell_id: BoxStr,
+    pub band: BoxStr,
+    pub rsrp: BoxStr,
+    pub rsrq: BoxStr,
+    pub sinr: BoxStr,
+    pub roam: BoxStr,
+    pub tz_lock_current_cellid: BoxStr,
+    pub mcs: BoxStr,
+    pub cqi: BoxStr,
+    pub rssi: BoxStr,
+    pub wan_ip: BoxStr,
+    pub lte_band: BoxStr,
+    pub uplink_rate: BoxStr,
+    pub downlink_rate: BoxStr,
+    pub uplink_traffic: BoxStr,
+    pub downlink_traffic: BoxStr,
+    pub limit_switch: BoxStr,
+    pub main_antenna: BoxStr,
+    pub sub_antenna: BoxStr,
+    pub only_antenna: BoxStr,
+    pub dns: BoxStr,
+    pub online_time: BoxStr,
+    pub networking_duration: BoxStr,
+    pub wifi_channel: BoxStr,
+    pub gateway: BoxStr,
+    pub netmask: BoxStr,
+}
+
+impl ProcGet for SystemStatus {
+    const CMD: &str = "system_status";
+    type Params = ();
+
+    fn print_table(&self) -> EyreResult<()> {
+        let mut table = create_table();
+        table.set_header(["System Config", "Value"]);
+
+        table.add_row(["Platform Version", &self.platform_version]);
+        table.add_row(["SIM Status", &self.sim_status]);
+        table.add_row(["Network Type", &self.network_type]);
+        table.add_row(["Service Status", &self.service_status]);
+        table.add_row(["PLMN", &self.plmn]);
+        table.add_row(["PLMN ID", &self.plmn_id]);
+        table.add_row(["Cell ID", &self.cell_id]);
+        table.add_row(["eNode ID", &self.enode_id]);
+        table.add_row(["W Cell ID", &self.w_cellid]);
+        table.add_row(["W RNC ID", &self.w_rncid]);
+        table.add_row(["GSM Cell ID", &self.gsm_cellid]);
+        table.add_row(["DW Cell ID", &self.dw_cell_id]);
+        table.add_row(["PHY Cell ID", &self.phy_cell_id]);
+        table.add_row(["Band", &self.band]);
+        table.add_row(["RSRP", &self.rsrp]);
+        table.add_row(["RSRQ", &self.rsrq]);
+        table.add_row(["SINR", &self.sinr]);
+        table.add_row(["Roam", &self.roam]);
+        table.add_row(["TZ Lock Currect Cell ID", &self.tz_lock_current_cellid]);
+        table.add_row(["MCS", &self.mcs]);
+        table.add_row(["CQI", &self.cqi]);
+        table.add_row(["RSSI", &self.rssi]);
+        table.add_row(["WAN IP", &self.wan_ip]);
+        table.add_row(["LTE Band", &self.lte_band]);
+        table.add_row(["Uplink Rate", &self.uplink_rate]);
+        table.add_row(["Downlink Rate", &self.downlink_rate]);
+        table.add_row(["Limit Switch", &self.limit_switch]);
+        table.add_row(["Main Antenna", &self.main_antenna]);
+        table.add_row(["Sub Antenna", &self.sub_antenna]);
+        table.add_row(["Only Antenna", &self.only_antenna]);
+        table.add_row(["DNS", &self.dns]);
+        table.add_row(["Online Time", &self.online_time]);
+        table.add_row(["Networking Duration", &self.networking_duration]);
+        table.add_row(["WIFI Channel", &self.wifi_channel]);
+        table.add_row(["Gateway", &self.gateway]);
+        table.add_row(["NetMask", &self.netmask]);
+
+        println!("{table}");
+        Ok(())
+    }
+}
