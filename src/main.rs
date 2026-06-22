@@ -75,6 +75,14 @@ async fn main() -> EyreResult<()> {
                 let params = SendSmsParams::new(&number, &message);
                 router.execute::<SendSms>(params).await?
             }
+            PostCommands::MarkSms { msg_id } => {
+                router
+                    .execute::<MarkSms>(MarkSmsParams {
+                        msg_id,
+                        tag: "0".into(),
+                    })
+                    .await?
+            }
         },
     };
     router.logout().await?;

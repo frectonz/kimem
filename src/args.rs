@@ -121,4 +121,6 @@ pub enum PostCommands {
     DeleteAllSms,
     /// Send an SMS message.
     SendMessage { number: BoxStr, message: BoxStr },
+    /// Mark SMS message as read.
+    MarkSms { msg_id: BoxStr },
 }

@@ -138,3 +138,26 @@ impl ProcPost for SendSms {
         Ok(())
     }
 }
+#[derive(Debug, Deserialize)]
+pub struct MarkSms {
+    pub result: BoxStr,
+}
+
+#[derive(Debug, Serialize, Default)]
+pub struct MarkSmsParams {
+    pub msg_id: BoxStr,
+    pub tag: BoxStr,
+}
+
+impl ProcPost for MarkSms {
+    const GOFORM_ID: &str = "SET_MSG_READ";
+    type Params = MarkSmsParams;
+
+    fn print_table(&self) -> EyreResult<()> {
+        let mut table = create_table();
+        table.set_header(["Mark Result"]).add_row([&self.result]);
+        println!("{table}");
+
+        Ok(())
+    }
+}
