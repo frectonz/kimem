@@ -119,4 +119,6 @@ pub enum PostCommands {
     DeleteSms { msg_id: BoxStr },
     /// Delete all message from inbox.
     DeleteAllSms,
+    /// Send an SMS message.
+    SendMessage { number: BoxStr, message: BoxStr },
 }

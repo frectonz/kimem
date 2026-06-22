@@ -578,31 +578,6 @@ impl std::fmt::Display for MessageTagStatus {
     }
 }
 
-struct Datetime {
-    datetime: jiff::Zoned,
-}
-
-impl Datetime {
-    /// The timezone part can be ignored because it is a lie. It
-    /// either says +8 or +12, but the actual time is always in GMT+3.
-    /// Examples
-    /// 26,06,05,13,06,24,+8
-    /// 26,06,18,16,35,06,+12
-    pub fn parse(datetime: &str) -> EyreResult<Self> {
-        let datetime = datetime.trim_end_matches(",+8").trim_end_matches(",+12");
-        let datetime = format!("{datetime},Africa/Addis_Ababa");
-        let datetime = jiff::Zoned::strptime("%y,%m,%d,%H,%M,%S,%Q", datetime)?;
-        Ok(Self { datetime })
-    }
-}
-
-impl std::fmt::Display for Datetime {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let datetime = self.datetime.strftime("%F %r");
-        write!(f, "{datetime}")
-    }
-}
-
 impl ProcGet for SmsInbox {
     const CMD: &str = "sms_data_total";
     type Params = SmsInboxParams;

@@ -71,6 +71,10 @@ async fn main() -> EyreResult<()> {
                         .await?;
                 }
             }
+            PostCommands::SendMessage { number, message } => {
+                let params = SendSmsParams::new(&number, &message);
+                router.execute::<SendSms>(params).await?
+            }
         },
     };
     router.logout().await?;

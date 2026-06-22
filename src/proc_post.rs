@@ -91,3 +91,50 @@ impl ProcPost for DeleteSms {
         Ok(())
     }
 }
+
+#[derive(Debug, Deserialize)]
+pub struct SendSms {
+    pub result: BoxStr,
+}
+
+#[derive(Debug, Serialize, Default)]
+pub struct SendSmsParams {
+    #[serde(rename = "notCallback")]
+    not_callback: BoxStr,
+    encode_type: BoxStr,
+    #[serde(rename = "ID")]
+    id: BoxStr,
+
+    #[serde(rename = "Number")]
+    number: BoxStr,
+    #[serde(rename = "MessageBody")]
+    message_body: BoxStr,
+    sms_time: BoxStr,
+}
+
+impl SendSmsParams {
+    pub fn new(number: &str, message: &str) -> Self {
+        Self {
+            not_callback: "true".into(),
+            encode_type: "UNICODE".into(),
+            id: "-1".into(),
+
+            number: number.into(),
+            sms_time: Datetime::now().router_time(),
+            message_body: ucs2_encode(message),
+        }
+    }
+}
+
+impl ProcPost for SendSms {
+    const GOFORM_ID: &str = "SEND_SMS";
+    type Params = SendSmsParams;
+
+    fn print_table(&self) -> EyreResult<()> {
+        let mut table = create_table();
+        table.set_header(["Send Result"]).add_row([&self.result]);
+        println!("{table}");
+
+        Ok(())
+    }
+}
