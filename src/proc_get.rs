@@ -1023,3 +1023,36 @@ impl ProcGet for DeviceVersion {
         Ok(())
     }
 }
+#[derive(Debug, Deserialize)]
+pub struct SmsParameterInfo {
+    pub sms_para_sca: BoxStr,
+    pub sms_para_mem_store: BoxStr,
+    pub sms_para_validity_period: BoxStr,
+    pub sms_para_status_report: BoxStr,
+    pub sendfail_retry: BoxStr,
+    pub outdate_delete: BoxStr,
+    pub default_store: BoxStr,
+}
+
+impl ProcGet for SmsParameterInfo {
+    const CMD: &str = "sms_parameter_info";
+    type Params = ();
+
+    fn print_table(&self) -> EyreResult<()> {
+        let mut table = create_table();
+
+        table
+            .set_header(["SMS Parameter", "Value"])
+            .add_row(["Service Center Address", &self.sms_para_sca])
+            .add_row(["Memory store", &self.sms_para_mem_store])
+            .add_row(["Validity period", &self.sms_para_validity_period])
+            .add_row(["Status report", &self.sms_para_status_report])
+            .add_row(["Should retry", &self.sendfail_retry])
+            .add_row(["Should delete outdated", &self.outdate_delete])
+            .add_row(["Default storage location", &self.default_store]);
+
+        println!("{table}");
+
+        Ok(())
+    }
+}
