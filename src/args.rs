@@ -113,6 +113,7 @@ pub enum GetCommands {
     MaxStationNum,
     /// Fetch device version.
     DeviceVersion,
+    /// Fetch SMS parameter info.
     SmsParameterInfo,
 }
 
