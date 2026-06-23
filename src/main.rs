@@ -46,42 +46,22 @@ async fn main() -> EyreResult<()> {
             GetCommands::RealtimeRx => router.show::<RealtimeRx>().await?,
             GetCommands::RealtimeTx => router.show::<RealtimeTx>().await?,
             GetCommands::HardwareVersion => router.show::<HardwareVersion>().await?,
-            GetCommands::SystemStatus => router.system_status().await?.print_table()?,
+            GetCommands::SystemStatus => router.system_status().await?,
         },
         TopLevelCommands::Post { command } => match command {
-            PostCommands::Reboot => router.reboot().await.print_table()?,
+            PostCommands::Reboot => router.reboot().await?,
             PostCommands::DeleteSms { msg_id } => {
-                router
-                    .execute::<DeleteSms>(DeleteSmsParams { msg_id })
-                    .await?
+                let params = DeleteSmsParams { msg_id };
+                router.execute::<DeleteSms>(params).await?
             }
-            PostCommands::DeleteAllSms => {
-                let msg_ids = router
-                    .get::<SmsInbox>()
-                    .await?
-                    .messages
-                    .into_iter()
-                    .map(|m| m.id)
-                    .collect::<Vec<_>>();
-
-                for msg_id in msg_ids {
-                    println!("Deleting {msg_id}...");
-                    router
-                        .post_with::<DeleteSms>(DeleteSmsParams { msg_id })
-                        .await?;
-                }
-            }
+            PostCommands::DeleteAllSms => router.delete_all_sms().await?,
             PostCommands::SendMessage { number, message } => {
                 let params = SendSmsParams::new(&number, &message);
                 router.execute::<SendSms>(params).await?
             }
             PostCommands::MarkSms { msg_id } => {
-                router
-                    .execute::<MarkSms>(MarkSmsParams {
-                        msg_id,
-                        tag: "0".into(),
-                    })
-                    .await?
+                let params = MarkSmsParams::new(msg_id);
+                router.execute::<MarkSms>(params).await?
             }
         },
     };

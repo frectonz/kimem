@@ -149,6 +149,15 @@ pub struct MarkSmsParams {
     pub tag: BoxStr,
 }
 
+impl MarkSmsParams {
+    pub fn new(msg_id: BoxStr) -> Self {
+        Self {
+            msg_id,
+            tag: "0".into(),
+        }
+    }
+}
+
 impl ProcPost for MarkSms {
     const GOFORM_ID: &str = "SET_MSG_READ";
     type Params = MarkSmsParams;

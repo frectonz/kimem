@@ -142,11 +142,12 @@ impl Router {
         self.post::<Logout>().await
     }
 
-    pub async fn reboot(&self) -> RebootDevice {
+    pub async fn reboot(&self) -> EyreResult<()> {
         let res = self.post::<RebootDevice>().await;
         // server dies before responding to the reboot request
         assert!(res.is_err());
-        RebootDevice
+        RebootDevice.print_table()?;
+        Ok(())
     }
 
     pub async fn show<T: ProcGet>(&self) -> EyreResult<()> {
@@ -159,7 +160,7 @@ impl Router {
         Ok(())
     }
 
-    pub async fn system_status(&self) -> EyreResult<SystemStatus> {
+    pub async fn system_status(&self) -> EyreResult<()> {
         let resp = self.get_text::<SystemStatus>().await?;
 
         // We have to use this trick to handle duplicate keys.
@@ -167,7 +168,26 @@ impl Router {
         // JSON response.
         let value: serde_json::Value = serde_json::from_str(&resp)?;
         let value: SystemStatus = serde_json::from_value(value)?;
+        value.print_table()?;
 
-        Ok(value)
+        Ok(())
+    }
+
+    pub async fn delete_all_sms(&self) -> EyreResult<()> {
+        let msg_ids = self
+            .get::<SmsInbox>()
+            .await?
+            .messages
+            .into_iter()
+            .map(|m| m.id)
+            .collect::<Vec<_>>();
+
+        for msg_id in msg_ids {
+            println!("Deleting {msg_id}...");
+            self.post_with::<DeleteSms>(DeleteSmsParams { msg_id })
+                .await?;
+        }
+
+        Ok(())
     }
 }
