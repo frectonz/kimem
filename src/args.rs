@@ -109,6 +109,8 @@ pub enum GetCommands {
     HardwareVersion,
     /// Fetch system status.
     SystemStatus,
+    /// Fetch max station num.
+    MaxStationNum,
 }
 
 #[derive(Subcommand, Debug)]

@@ -978,3 +978,26 @@ impl ProcGet for SystemStatus {
         Ok(())
     }
 }
+
+#[derive(Debug, Deserialize)]
+pub struct MaxStationNum {
+    #[serde(rename = "MAX_Station_num")]
+    pub max_station_num: BoxStr,
+}
+
+impl ProcGet for MaxStationNum {
+    const CMD: &str = "MAX_Station_num";
+    type Params = ();
+
+    fn print_table(&self) -> EyreResult<()> {
+        let mut table = create_table();
+
+        table
+            .set_header(["Max Station Num"])
+            .add_row([&self.max_station_num]);
+
+        println!("{table}");
+
+        Ok(())
+    }
+}
