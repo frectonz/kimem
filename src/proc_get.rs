@@ -1001,3 +1001,25 @@ impl ProcGet for MaxStationNum {
         Ok(())
     }
 }
+
+#[derive(Debug, Deserialize)]
+pub struct DeviceVersion {
+    pub device_version: BoxStr,
+}
+
+impl ProcGet for DeviceVersion {
+    const CMD: &str = "device_version";
+    type Params = ();
+
+    fn print_table(&self) -> EyreResult<()> {
+        let mut table = create_table();
+
+        table
+            .set_header(["Device Version"])
+            .add_row([&self.device_version]);
+
+        println!("{table}");
+
+        Ok(())
+    }
+}
