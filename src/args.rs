@@ -122,11 +122,11 @@ pub enum PostCommands {
     /// Reboot the router.
     Reboot,
     /// Delete message from inbox.
-    DeleteSms { msg_id: BoxStr },
+    DeleteSms { msg_id: usize },
     /// Delete all message from inbox.
     DeleteAllSms,
     /// Send an SMS message.
     SendMessage { number: BoxStr, message: BoxStr },
     /// Mark SMS message as read.
-    MarkSms { msg_id: BoxStr },
+    MarkSms { msg_id: usize },
 }

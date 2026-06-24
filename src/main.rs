@@ -54,6 +54,7 @@ async fn main() -> EyreResult<()> {
         TopLevelCommands::Post { command } => match command {
             PostCommands::Reboot => router.reboot().await?,
             PostCommands::DeleteSms { msg_id } => {
+                let msg_id = format!("{msg_id}").into_boxed_str();
                 let params = DeleteSmsParams { msg_id };
                 router.execute::<DeleteSms>(params).await?
             }
@@ -63,6 +64,7 @@ async fn main() -> EyreResult<()> {
                 router.execute::<SendSms>(params).await?
             }
             PostCommands::MarkSms { msg_id } => {
+                let msg_id = format!("{msg_id};").into_boxed_str();
                 let params = MarkSmsParams::new(msg_id);
                 router.execute::<MarkSms>(params).await?
             }
