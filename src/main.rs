@@ -50,6 +50,7 @@ async fn main() -> EyreResult<()> {
             GetCommands::MaxStationNum => router.show::<MaxStationNum>().await?,
             GetCommands::DeviceVersion => router.show::<DeviceVersion>().await?,
             GetCommands::SmsParameterInfo => router.show::<SmsParameterInfo>().await?,
+            GetCommands::OldSimNum => router.show::<OldSimNum>().await?,
         },
         TopLevelCommands::Post { command } => match command {
             PostCommands::Reboot => router.reboot().await?,

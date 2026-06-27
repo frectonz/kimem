@@ -1023,6 +1023,7 @@ impl ProcGet for DeviceVersion {
         Ok(())
     }
 }
+
 #[derive(Debug, Deserialize)]
 pub struct SmsParameterInfo {
     pub sms_para_sca: BoxStr,
@@ -1051,6 +1052,26 @@ impl ProcGet for SmsParameterInfo {
             .add_row(["Should delete outdated", &self.outdate_delete])
             .add_row(["Default storage location", &self.default_store]);
 
+        println!("{table}");
+
+        Ok(())
+    }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct OldSimNum {
+    pub old_sim_num: BoxStr,
+}
+
+impl ProcGet for OldSimNum {
+    const CMD: &str = "old_sim_num";
+    type Params = ();
+
+    fn print_table(&self) -> EyreResult<()> {
+        let mut table = create_table();
+
+        let welcome = ucs2_decode(&self.old_sim_num)?;
+        table.set_header(["Old SIM Num"]).add_row([&welcome]);
         println!("{table}");
 
         Ok(())

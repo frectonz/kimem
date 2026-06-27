@@ -115,6 +115,8 @@ pub enum GetCommands {
     DeviceVersion,
     /// Fetch SMS parameter info.
     SmsParameterInfo,
+    /// Fetch old sim num data.
+    OldSimNum,
 }
 
 #[derive(Subcommand, Debug)]
