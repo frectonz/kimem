@@ -18,7 +18,7 @@ where
             Err(_) => {
                 let duration = BASE_DELAY * 2u32.pow(attempt - 1);
                 println!("Retrying in {}ms", duration.as_millis());
-                tokio::time::sleep(duration).await
+                tokio::time::sleep(duration).await;
             }
         }
     }

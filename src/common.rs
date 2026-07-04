@@ -1,5 +1,11 @@
 pub type BoxStr = Box<str>;
+pub type BoxList<T> = Box<[T]>;
 pub type EyreResult<T> = color_eyre::Result<T>;
+
+/// Render a value fetched from the router on stdout.
+pub trait Show {
+    fn show(&self) -> EyreResult<()>;
+}
 
 pub fn b64_encode(input: &str) -> BoxStr {
     use base64::Engine;
@@ -13,9 +19,9 @@ pub fn b64_decode(input: &str) -> EyreResult<BoxStr> {
     use base64::Engine;
 
     let decoded = base64::prelude::BASE64_STANDARD.decode(input)?;
-    let decocded = String::from_utf8(decoded)?.into_boxed_str();
+    let decoded = String::from_utf8(decoded)?.into_boxed_str();
 
-    Ok(decocded)
+    Ok(decoded)
 }
 
 pub fn sha256_encode(input: &str) -> BoxStr {
@@ -25,65 +31,87 @@ pub fn sha256_encode(input: &str) -> BoxStr {
     hex::encode(hash).into_boxed_str()
 }
 
-pub fn ucs2_decode(hex_str: &str) -> EyreResult<String> {
+pub fn ucs2_decode(hex_str: &str) -> EyreResult<BoxStr> {
     let bytes = hex::decode(hex_str)?;
     if bytes.len() % 2 != 0 {
         color_eyre::eyre::bail!("non even length");
     }
 
-    let units: Vec<u16> = bytes
+    let units: BoxList<u16> = bytes
         .chunks_exact(2)
         .map(|c| u16::from_be_bytes([c[0], c[1]]))
         .collect();
 
-    let str = String::from_utf16(&units)?;
+    let str = String::from_utf16(&units)?.into_boxed_str();
 
     Ok(str)
 }
 
 pub fn ucs2_encode(s: &str) -> BoxStr {
-    let bytes: Vec<u8> = s.encode_utf16().flat_map(|u| u.to_be_bytes()).collect();
+    let bytes: BoxList<u8> = s.encode_utf16().flat_map(u16::to_be_bytes).collect();
     hex::encode(bytes).into_boxed_str()
 }
 
 pub fn create_table() -> comfy_table::Table {
     let mut table = comfy_table::Table::new();
     table.load_preset(comfy_table::presets::UTF8_FULL_CONDENSED);
+    table.set_content_arrangement(comfy_table::ContentArrangement::Dynamic);
     table
 }
 
-pub struct Datetime {
-    datetime: jiff::Zoned,
+/// Page text through `$PAGER` (default: `less -FRX`) so long output
+/// doesn't flood the terminal. Prints directly when stdout isn't a
+/// terminal (e.g. piped into grep) or the pager can't be started.
+pub fn page_or_print(text: &str) -> EyreResult<()> {
+    use std::io::{IsTerminal, Write};
+    use std::process::{Command, Stdio};
+
+    if !std::io::stdout().is_terminal() {
+        print!("{text}");
+        return Ok(());
+    }
+
+    let pager = std::env::var("PAGER").unwrap_or_else(|_| "less -FRX".to_owned());
+    let mut words = pager.split_whitespace();
+    let Some(program) = words.next() else {
+        print!("{text}");
+        return Ok(());
+    };
+
+    let Ok(mut child) = Command::new(program)
+        .args(words)
+        .stdin(Stdio::piped())
+        .spawn()
+    else {
+        print!("{text}");
+        return Ok(());
+    };
+
+    if let Some(mut stdin) = child.stdin.take() {
+        // A broken pipe just means the user quit the pager early.
+        let _ = stdin.write_all(text.as_bytes());
+    }
+
+    child.wait()?;
+
+    Ok(())
 }
 
-impl Datetime {
-    /// The timezone part can be ignored because it is a lie. It
-    /// either says +8 or +12, but the actual time is always in GMT+3.
-    /// Examples
-    /// 26,06,05,13,06,24,+8
-    /// 26,06,18,16,35,06,+12
-    pub fn parse(datetime: &str) -> EyreResult<Self> {
-        let datetime = datetime.trim_end_matches(",+8").trim_end_matches(",+12");
-        let datetime = format!("{datetime},Africa/Addis_Ababa");
-        let datetime = jiff::Zoned::strptime("%y,%m,%d,%H,%M,%S,%Q", datetime)?;
-        Ok(Self { datetime })
-    }
-
-    pub fn now() -> Self {
-        Self {
-            datetime: jiff::Zoned::now(),
-        }
-    }
-
-    pub fn router_time(&self) -> BoxStr {
-        let datetime = self.datetime.strftime("%y;%m;%d;%H;%M;%S");
-        format!("{datetime};+3").into_boxed_str()
-    }
+/// Substitute a dash for fields the router reports as empty.
+pub const fn or_dash(value: &str) -> &str {
+    if value.is_empty() { "—" } else { value }
 }
 
-impl std::fmt::Display for Datetime {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let datetime = self.datetime.strftime("%F %r");
-        write!(f, "{datetime}")
+pub const fn yes_no(value: bool) -> &'static str {
+    if value { "Yes" } else { "No" }
+}
+
+/// Truncate to `max` characters, appending an ellipsis when cut.
+pub fn truncate_chars(text: &str, max: usize) -> BoxStr {
+    if text.chars().count() <= max {
+        return text.into();
     }
+
+    let truncated: BoxStr = text.chars().take(max).collect();
+    format!("{}…", truncated.trim_end()).into_boxed_str()
 }
