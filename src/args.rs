@@ -76,6 +76,15 @@ pub enum GetSmsCommands {
 pub enum PostCommands {
     /// Reboot the router.
     Reboot,
+    /// Start an interactive USSD session.
+    Ussd {
+        /// USSD code (e.g. '*704#') or a built-in name.
+        ///
+        /// Built-in names: menu (*777#), balance (*704#),
+        /// bundles (*777*02#), mpesa (*733#).
+        #[arg(value_parser = parse_ussd_code)]
+        code: BoxStr,
+    },
     /// SMS actions.
     #[command(flatten_help = true)]
     Sms {
@@ -105,6 +114,36 @@ pub enum PostSmsCommands {
         #[arg(value_parser = parse_msg_selector)]
         msg_id: MsgSelector,
     },
+}
+
+/// Built-in Safaricom Ethiopia USSD codes, dialable by name. "balance"
+/// and "bundles" are what the router dashboard's own buttons dial.
+const USSD_CODES: &[(&str, &str)] = &[
+    ("menu", "*777#"),
+    ("balance", "*704#"),
+    ("bundles", "*777*02#"),
+    ("mpesa", "*733#"),
+];
+
+fn parse_ussd_code(raw: &str) -> Result<BoxStr, String> {
+    if raw.contains('*') || raw.contains('#') {
+        return Ok(raw.into());
+    }
+
+    USSD_CODES
+        .iter()
+        .find(|(name, _)| raw.eq_ignore_ascii_case(name))
+        .map(|(_, code)| (*code).into())
+        .ok_or_else(|| {
+            let names: BoxList<String> = USSD_CODES
+                .iter()
+                .map(|(name, code)| format!("{name} ({code})"))
+                .collect();
+            format!(
+                "expected a USSD code or a built-in name, got {raw:?}; built-ins: {}",
+                names.join(", ")
+            )
+        })
 }
 
 /// A message ID argument that also accepts the literal "all".

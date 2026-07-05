@@ -150,6 +150,54 @@ impl Show for SendSms {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct UssdProcess {
+    pub result: BoxStr,
+}
+
+#[derive(Debug, Serialize, Default)]
+#[serde(tag = "USSD_operator")]
+pub enum UssdParams {
+    #[serde(rename = "ussd_send")]
+    Send {
+        #[serde(rename = "USSD_send_number")]
+        number: BoxStr,
+        #[serde(rename = "notCallback")]
+        not_callback: BoxStr,
+    },
+    #[serde(rename = "ussd_reply")]
+    Reply {
+        #[serde(rename = "USSD_reply_number")]
+        number: BoxStr,
+        #[serde(rename = "notCallback")]
+        not_callback: BoxStr,
+    },
+    #[default]
+    #[serde(rename = "ussd_cancel")]
+    Cancel,
+}
+
+impl UssdParams {
+    pub fn send(code: &str) -> Self {
+        Self::Send {
+            number: code.into(),
+            not_callback: "true".into(),
+        }
+    }
+
+    pub fn reply(input: &str) -> Self {
+        Self::Reply {
+            number: input.into(),
+            not_callback: "true".into(),
+        }
+    }
+}
+
+impl ProcPost for UssdProcess {
+    const GOFORM_ID: &str = "USSD_PROCESS";
+    type Params = UssdParams;
+}
+
+#[derive(Debug, Deserialize)]
 pub struct MarkSms {
     pub result: BoxStr,
 }

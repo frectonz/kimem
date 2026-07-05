@@ -178,6 +178,58 @@ impl Show for AirtimeBalance {
     }
 }
 
+/// State of an in-flight USSD transaction (`ussd_write_flag`). The codes
+/// and their meanings are taken from the router's own web UI, which polls
+/// on "15", reads the response on exactly "16", and treats every other
+/// value as a specific error.
+#[derive(Debug, Clone)]
+pub enum UssdFlag {
+    /// The network hasn't answered yet ("15").
+    Pending,
+    /// A response is ready to read ("16").
+    Ready,
+    /// The transaction failed; carries a human-readable reason.
+    Failed(BoxStr),
+}
+
+impl<'de> serde::Deserialize<'de> for UssdFlag {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let raw = BoxStr::deserialize(deserializer)?;
+        Ok(match raw.as_ref() {
+            "15" => Self::Pending,
+            "16" => Self::Ready,
+            "1" => Self::Failed("no network service".into()),
+            "2" => Self::Failed("network terminated the session".into()),
+            "3" | "4" | "unknown" => Self::Failed("timed out".into()),
+            "10" => Self::Failed("please retry".into()),
+            "41" => Self::Failed("operation not supported".into()),
+            "99" => Self::Failed("USSD not supported".into()),
+            other => Self::Failed(format!("unexpected status code {other}").into()),
+        })
+    }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct UssdWriteFlag {
+    pub ussd_write_flag: UssdFlag,
+}
+
+impl ProcGet for UssdWriteFlag {
+    const CMD: &str = "ussd_write_flag";
+    type Params = ();
+}
+
+#[derive(Debug, Deserialize)]
+pub struct UssdData {
+    #[serde(rename = "ussd_data", deserialize_with = "de::ucs2")]
+    pub text: BoxStr,
+}
+
+impl ProcGet for UssdData {
+    const CMD: &str = "ussd_data_info";
+    type Params = ();
+}
+
 /// Signal metrics live in the `system_status` read; the standalone `rssi`
 /// cmd echoes RSRP instead of the real RSSI on this firmware. The cell
 /// identifiers are kept as text since they're empty outside LTE.

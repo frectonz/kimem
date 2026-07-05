@@ -97,6 +97,25 @@ pub fn page_or_print(text: &str) -> EyreResult<()> {
     Ok(())
 }
 
+/// Print a block of text bracketed by horizontal rules sized to its
+/// widest line, so successive blocks (e.g. USSD menu steps) stay visually
+/// separate. The rule width is clamped to keep short replies from drawing
+/// a tiny line and long ones from spanning the whole terminal.
+pub fn print_framed(text: &str) {
+    const MIN_RULE: usize = 24;
+    const MAX_RULE: usize = 60;
+
+    let width = text
+        .lines()
+        .map(|line| line.chars().count())
+        .max()
+        .unwrap_or(0)
+        .clamp(MIN_RULE, MAX_RULE);
+
+    let rule = "─".repeat(width);
+    println!("{rule}\n{text}\n{rule}");
+}
+
 /// Substitute a dash for fields the router reports as empty.
 pub const fn or_dash(value: &str) -> &str {
     if value.is_empty() { "—" } else { value }

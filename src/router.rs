@@ -155,6 +155,106 @@ impl Router {
         self.post_with::<T>(params).await?.show()
     }
 
+    /// Run an interactive USSD session: dial the code, print each network
+    /// response, and read menu replies from stdin until EOF / "q" / an
+    /// empty line. The network session is always cancelled on the way out.
+    pub async fn ussd_session(&self, code: &str) -> EyreResult<()> {
+        self.post_with::<UssdProcess>(UssdParams::send(code))
+            .await?;
+
+        let dialog = self.ussd_dialog().await;
+        let _ = self.post_with::<UssdProcess>(UssdParams::Cancel).await;
+
+        dialog
+    }
+
+    async fn ussd_dialog(&self) -> EyreResult<()> {
+        use std::io::IsTerminal;
+
+        self.ussd_print_response().await?;
+
+        if std::io::stdin().is_terminal() {
+            self.ussd_dialog_interactive().await
+        } else {
+            self.ussd_dialog_piped().await
+        }
+    }
+
+    async fn ussd_dialog_interactive(&self) -> EyreResult<()> {
+        use rustyline::error::ReadlineError;
+
+        let mut editor = rustyline::DefaultEditor::new()?;
+        loop {
+            let line = match editor.readline("> ") {
+                Ok(line) => line,
+                // Ctrl-C / Ctrl-D quit the dialog, not the process, so
+                // the session still gets cancelled on the way out.
+                Err(ReadlineError::Interrupted | ReadlineError::Eof) => break,
+                Err(e) => return Err(e.into()),
+            };
+
+            let reply = line.trim();
+            if reply.is_empty() || reply == "q" {
+                break;
+            }
+
+            let _ = editor.add_history_entry(reply);
+            self.ussd_reply(reply).await?;
+        }
+
+        Ok(())
+    }
+
+    /// Piped stdin (`echo 2 | kimem post ussd menu`): no prompts, no
+    /// line editing, just replies.
+    async fn ussd_dialog_piped(&self) -> EyreResult<()> {
+        use std::io::BufRead;
+
+        for line in std::io::stdin().lock().lines() {
+            let line = line?;
+            let reply = line.trim();
+            if reply.is_empty() || reply == "q" {
+                break;
+            }
+
+            self.ussd_reply(reply).await?;
+        }
+
+        Ok(())
+    }
+
+    async fn ussd_reply(&self, reply: &str) -> EyreResult<()> {
+        self.post_with::<UssdProcess>(UssdParams::reply(reply))
+            .await?;
+        self.ussd_print_response().await
+    }
+
+    /// Poll until the network answers, then print the decoded response.
+    async fn ussd_print_response(&self) -> EyreResult<()> {
+        const MAX_POLLS: u32 = 30;
+
+        let mut polls = 0;
+        loop {
+            tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+
+            match self.get::<UssdWriteFlag>().await?.ussd_write_flag {
+                UssdFlag::Ready => break,
+                UssdFlag::Failed(reason) => bail!("USSD request failed: {reason}"),
+                UssdFlag::Pending => {
+                    polls += 1;
+                    if polls == MAX_POLLS {
+                        bail!("USSD request timed out after {MAX_POLLS}s");
+                    }
+                }
+            }
+        }
+
+        let response = self.get::<UssdData>().await?;
+        print_framed(response.text.trim());
+
+        Ok(())
+    }
+
     /// Signal metrics come from `system_status`, but TAC and EARFCN only
     /// exist as standalone cmds; join the two reads into one report.
     pub async fn show_signal(&self) -> EyreResult<()> {

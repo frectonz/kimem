@@ -31,6 +31,7 @@ async fn main() -> EyreResult<()> {
                 // The router goes down mid-reboot, so don't try to log out.
                 return router.reboot().await;
             }
+            PostCommands::Ussd { code } => router.ussd_session(&code).await?,
             PostCommands::Sms { command } => match command {
                 PostSmsCommands::Send { number, message } => {
                     let params = SendSmsParams::new(&number, &message);
