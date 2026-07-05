@@ -29,6 +29,10 @@ pub struct ConnectedDevice {
     pub hostname: BoxStr,
     pub ip_addr: BoxStr,
     pub mac_addr: BoxStr,
+    /// Connection medium: "wifi", "eth", ...
+    pub dev_type: BoxStr,
+    /// Address assignment: "DHCP" or "static".
+    pub ip_type: BoxStr,
 }
 
 impl ProcGet for StationList {
@@ -39,10 +43,16 @@ impl ProcGet for StationList {
 impl Show for StationList {
     fn show(&self) -> EyreResult<()> {
         let mut table = create_table();
-        table.set_header(["Hostname", "IP Address", "MAC Address"]);
+        table.set_header(["Hostname", "IP Address", "MAC Address", "Type", "IP Type"]);
 
         for device in &self.station_list {
-            table.add_row([or_dash(&device.hostname), &device.ip_addr, &device.mac_addr]);
+            table.add_row([
+                or_dash(&device.hostname),
+                device.ip_addr.as_ref(),
+                device.mac_addr.as_ref(),
+                device.dev_type.as_ref(),
+                device.ip_type.as_ref(),
+            ]);
         }
 
         println!("{table}");
