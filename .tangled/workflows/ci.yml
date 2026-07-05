@@ -17,3 +17,5 @@ steps:
   - name: Build Project
     command: nix develop -c cargo build --release
 
+  - name: Build Project via Nix
+    command: nix build

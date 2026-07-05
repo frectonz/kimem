@@ -42,6 +42,27 @@
         };
       });
 
+      packages = forAllSystems (
+        pkgs:
+        let
+          rustPlatform = pkgs.makeRustPlatform {
+            cargo = pkgs.rust-bin.stable.latest.default;
+            rustc = pkgs.rust-bin.stable.latest.default;
+          };
+
+          pname = "kimem";
+          version = "0.1.0";
+        in
+        {
+          default = rustPlatform.buildRustPackage {
+            inherit pname version;
+            src = self;
+            cargoLock.lockFile = ./Cargo.lock;
+            meta.mainProgram = pname;
+          };
+        }
+      );
+
       formatter = forAllSystems (
         pkgs:
         pkgs.treefmt.withConfig {
