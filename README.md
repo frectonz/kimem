@@ -29,6 +29,34 @@ The router address and credentials default to `192.168.0.1` / `admin` /
 `admin` and can be overridden with `--router`, `--username`, and
 `--password`.
 
+## Installation
+
+### Install via shell script (MacOS and Linux)
+
+```sh
+curl --proto '=https' --tlsv1.2 -LsSf https://github.com/frectonz/kimem/releases/download/v0.1.0/kimem-installer.sh | sh
+```
+
+### Install via powershell script (Windows)
+
+```sh
+powershell -ExecutionPolicy Bypass -c "irm https://github.com/frectonz/kimem/releases/download/v0.1.0/kimem-installer.ps1 | iex"
+```
+
+### Nix (Build from source)
+
+#### Fetch from [FlakeHub](https://flakehub.com/flake/frectonz/kimem)
+
+```
+nix shell "https://flakehub.com/f/frectonz/kimem/0.1.0"
+```
+
+#### Fetch from GitHub
+
+```
+nix shell github:frectonz/kimem
+```
+
 ## Examples
 
 ```sh
