@@ -1,7 +1,7 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    rust-overlay.url = "github:oxalica/rust-overlay";
+    nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/*";
+    rust-overlay.url = "https://flakehub.com/f/oxalica/rust-overlay/*";
     rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
   };
 
