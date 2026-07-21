@@ -336,6 +336,25 @@ impl std::fmt::Display for MessageStatus {
     }
 }
 
+/// The firmware build stamp in "YYYY-MM-DD_HH:MM" format ("2025-02-19_13:59").
+#[derive(Debug, Clone)]
+pub struct BuildTime(jiff::civil::DateTime);
+
+impl<'de> Deserialize<'de> for BuildTime {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let raw = BoxStr::deserialize(deserializer)?;
+        jiff::civil::DateTime::strptime("%Y-%m-%d_%H:%M", raw.trim())
+            .map(Self)
+            .map_err(|e| D::Error::custom(format!("invalid build time {raw:?}: {e}")))
+    }
+}
+
+impl std::fmt::Display for BuildTime {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0.strftime("%F %R"))
+    }
+}
+
 /// A timestamp in the router's "YY,MM,DD,HH,MM,SS,+TZ" format.
 #[derive(Debug, Clone)]
 pub struct Datetime {

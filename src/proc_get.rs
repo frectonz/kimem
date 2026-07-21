@@ -313,8 +313,12 @@ impl Show for SignalReport {
 #[derive(Debug, Deserialize)]
 pub struct Device {
     pub device_version: BoxStr,
+    pub real_device_version: BoxStr,
+    pub build_time: BuildTime,
+    pub platform_version: BoxStr,
     pub sn: BoxStr,
     pub imei: BoxStr,
+    pub eth0_mac: BoxStr,
     pub online_time: Seconds,
 }
 
@@ -359,8 +363,12 @@ impl Show for DeviceReport {
         table
             .set_header(["Device", "Value"])
             .add_row(["Firmware Version", &self.device.device_version])
+            .add_row(["Build Version", &self.device.real_device_version])
+            .add_row(["Build Time", &self.device.build_time.to_string()])
+            .add_row(["Platform", &self.device.platform_version])
             .add_row(["S/N", &self.device.sn])
             .add_row(["IMEI", &self.device.imei])
+            .add_row(["Ethernet MAC", &self.device.eth0_mac])
             .add_row(["SIM ICCID", or_dash(&self.sim.ziccid)])
             .add_row(["Uptime", &self.device.online_time.to_string()]);
 
