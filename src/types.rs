@@ -3,6 +3,7 @@
 
 use crate::common::*;
 use serde::{Deserialize, Deserializer, de::Error as _};
+use std::net::IpAddr;
 
 /// `deserialize_with` helpers for fields that don't warrant a dedicated type.
 pub mod de {
@@ -204,6 +205,43 @@ impl std::fmt::Display for Decibels {
             Some(value) => write!(f, "{value} dB"),
             None => write!(f, "—"),
         }
+    }
+}
+
+/// A comma-separated resolver list ("10.44.137.4,10.43.137.4").
+#[derive(Debug, Clone)]
+pub struct DnsServers(pub BoxList<IpAddr>);
+
+impl<'de> Deserialize<'de> for DnsServers {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let raw = BoxStr::deserialize(deserializer)?;
+        raw.split(',')
+            .map(str::trim)
+            .filter(|entry| !entry.is_empty())
+            .map(|entry| {
+                entry
+                    .parse()
+                    .map_err(|e| D::Error::custom(format!("invalid DNS address {entry:?}: {e}")))
+            })
+            .collect::<Result<BoxList<IpAddr>, _>>()
+            .map(Self)
+    }
+}
+
+impl std::fmt::Display for DnsServers {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if self.0.is_empty() {
+            return write!(f, "—");
+        }
+
+        for (index, ip) in self.0.iter().enumerate() {
+            if index > 0 {
+                write!(f, ", ")?;
+            }
+            write!(f, "{ip}")?;
+        }
+
+        Ok(())
     }
 }
 

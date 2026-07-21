@@ -334,6 +334,18 @@ impl ProcGet for SimIccid {
     type Params = ();
 }
 
+#[derive(Debug, Deserialize)]
+pub struct WanDetails {
+    pub gateway: BoxStr,
+    pub netmask: BoxStr,
+    pub dns: DnsServers,
+}
+
+impl ProcGet for WanDetails {
+    const CMD: &str = "home_get";
+    type Params = ();
+}
+
 #[derive(Debug)]
 pub struct DeviceReport {
     pub device: Device,

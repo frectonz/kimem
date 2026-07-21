@@ -1,4 +1,5 @@
 use crate::common::*;
+use crate::proc_get::WanDetails;
 use crate::types::*;
 use serde::Deserialize;
 
@@ -166,23 +167,34 @@ impl ProcGetMulti for Internet {
     ];
 }
 
-impl Show for Internet {
+#[derive(Debug)]
+pub struct InternetReport {
+    pub internet: Internet,
+    pub wan: WanDetails,
+}
+
+impl Show for InternetReport {
     fn show(&self) -> EyreResult<()> {
+        let internet = &self.internet;
+
         let mut table = create_table();
 
         table
             .set_header(["Internet", "Value"])
-            .add_row(["Status", &self.ppp_status.to_string()])
-            .add_row(["WAN IP", or_dash(&self.wan_ipaddr)])
-            .add_row(["LAN Domain", &self.lan_domain])
-            .add_row(["IMSI", &self.sim_imsi])
-            .add_row(["Download Speed", &self.realtime_rx_thrpt.to_string()])
-            .add_row(["Upload Speed", &self.realtime_tx_thrpt.to_string()])
-            .add_row(["Realtime RX", &self.realtime_rx_bytes.to_string()])
-            .add_row(["Realtime TX", &self.realtime_tx_bytes.to_string()])
-            .add_row(["Monthly RX", &self.monthly_rx_bytes.to_string()])
-            .add_row(["Monthly TX", &self.monthly_tx_bytes.to_string()])
-            .add_row(["Monthly Online", &self.monthly_time.to_string()]);
+            .add_row(["Status", &internet.ppp_status.to_string()])
+            .add_row(["WAN IP", or_dash(&internet.wan_ipaddr)])
+            .add_row(["Gateway", or_dash(&self.wan.gateway)])
+            .add_row(["Netmask", or_dash(&self.wan.netmask)])
+            .add_row(["DNS", &self.wan.dns.to_string()])
+            .add_row(["LAN Domain", &internet.lan_domain])
+            .add_row(["IMSI", &internet.sim_imsi])
+            .add_row(["Download Speed", &internet.realtime_rx_thrpt.to_string()])
+            .add_row(["Upload Speed", &internet.realtime_tx_thrpt.to_string()])
+            .add_row(["Realtime RX", &internet.realtime_rx_bytes.to_string()])
+            .add_row(["Realtime TX", &internet.realtime_tx_bytes.to_string()])
+            .add_row(["Monthly RX", &internet.monthly_rx_bytes.to_string()])
+            .add_row(["Monthly TX", &internet.monthly_tx_bytes.to_string()])
+            .add_row(["Monthly Online", &internet.monthly_time.to_string()]);
 
         println!("{table}");
 

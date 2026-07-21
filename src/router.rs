@@ -264,6 +264,13 @@ impl Router {
         SignalReport { signal, cell }.show()
     }
 
+    pub async fn show_internet(&self) -> EyreResult<()> {
+        let internet = self.get_multi::<Internet>().await?;
+        let wan = self.get::<WanDetails>().await?;
+
+        InternetReport { internet, wan }.show()
+    }
+
     /// Device identity comes from `home_get`, but the SIM ICCID only
     /// exists as a standalone cmd; join the two reads into one report.
     pub async fn show_device(&self) -> EyreResult<()> {
