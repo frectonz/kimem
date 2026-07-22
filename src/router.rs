@@ -271,6 +271,17 @@ impl Router {
         InternetReport { internet, wan }.show()
     }
 
+    pub async fn show_apn(&self) -> EyreResult<()> {
+        let status = self.get::<ApnStatus>().await?;
+        let config = self.get::<ApnConfig>().await?;
+
+        ApnReport {
+            status,
+            profile: config.profile,
+        }
+        .show()
+    }
+
     /// Device identity comes from `home_get`, but the SIM ICCID only
     /// exists as a standalone cmd; join the two reads into one report.
     pub async fn show_device(&self) -> EyreResult<()> {

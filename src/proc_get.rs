@@ -445,3 +445,84 @@ impl Show for DeviceReport {
         Ok(())
     }
 }
+
+#[derive(Debug, Deserialize)]
+pub struct ApnStatus {
+    pub apn_mode: BoxStr,
+}
+
+impl ProcGet for ApnStatus {
+    const CMD: &str = "apn_mode";
+    type Params = ();
+}
+
+#[derive(Debug)]
+pub struct ApnProfile {
+    pub profile_name: BoxStr,
+    pub apn: BoxStr,
+    pub pdp_type: BoxStr,
+    pub auth_mode: BoxStr,
+    pub username: BoxStr,
+    pub password: BoxStr,
+    pub dns_mode: BoxStr,
+}
+
+impl<'de> serde::Deserialize<'de> for ApnProfile {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let raw = BoxStr::deserialize(deserializer)?;
+        let fields: BoxList<&str> = raw.split("($)").collect();
+        let [name, apn, _, _, auth, user, pass, pdp, _, _, dns, ..] = fields.as_ref() else {
+            return Err(serde::de::Error::custom(format!("malformed APN config: {raw:?}")));
+        };
+
+        Ok(Self {
+            profile_name: name.trim().into(),
+            apn: apn.trim().into(),
+            pdp_type: pdp.trim().into(),
+            auth_mode: auth.trim().into(),
+            username: user.trim().into(),
+            password: pass.trim().into(),
+            dns_mode: dns.trim().into(),
+        })
+    }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ApnConfig {
+    #[serde(rename = "APN_config0")]
+    pub profile: ApnProfile,
+}
+
+impl ProcGet for ApnConfig {
+    const CMD: &str = "APN_config0";
+    type Params = ();
+}
+
+#[derive(Debug)]
+pub struct ApnReport {
+    pub status: ApnStatus,
+    pub profile: ApnProfile,
+}
+
+impl Show for ApnReport {
+    fn show(&self) -> EyreResult<()> {
+        let profile = &self.profile;
+
+        let mut table = create_table();
+
+        table
+            .set_header(["APN", "Value"])
+            .add_row(["Mode", &self.status.apn_mode])
+            .add_row(["Profile", or_dash(&profile.profile_name)])
+            .add_row(["APN", or_dash(&profile.apn)])
+            .add_row(["PDP Type", or_dash(&profile.pdp_type)])
+            .add_row(["Auth Mode", or_dash(&profile.auth_mode)])
+            .add_row(["Username", or_dash(&profile.username)])
+            .add_row(["Password", or_dash(&profile.password)])
+            .add_row(["DNS Mode", or_dash(&profile.dns_mode)]);
+
+        println!("{table}");
+
+        Ok(())
+    }
+}

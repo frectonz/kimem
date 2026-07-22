@@ -43,6 +43,8 @@ pub enum GetCommands {
     Signal,
     /// Router internet connection information.
     Internet,
+    /// Active APN (access point) configuration.
+    Apn,
     /// Router device information.
     Device,
     /// Router wifi config information.

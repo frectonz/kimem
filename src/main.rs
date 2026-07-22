@@ -15,6 +15,7 @@ async fn main() -> EyreResult<()> {
             GetCommands::System => router.show_multi::<System>().await?,
             GetCommands::Signal => router.show_signal().await?,
             GetCommands::Internet => router.show_internet().await?,
+            GetCommands::Apn => router.show_apn().await?,
             GetCommands::Device => router.show_device().await?,
             GetCommands::Wifi => router.show_multi::<Wifi>().await?,
             GetCommands::Devices => router.show::<StationList>().await?,
