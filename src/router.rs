@@ -302,6 +302,17 @@ impl Router {
             .show()
     }
 
+    pub async fn show_sms_info(&self) -> EyreResult<()> {
+        let capacity = self.get::<SmsCapacity>().await?;
+        let parameters = self.get::<SmsParameters>().await?;
+
+        SmsSettings {
+            capacity,
+            parameters,
+        }
+        .show()
+    }
+
     pub async fn delete_all_sms(&self) -> EyreResult<()> {
         let messages = self.get::<SmsInbox>().await?.messages;
         if messages.is_empty() {

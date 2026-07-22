@@ -142,6 +142,74 @@ impl Show for Message {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct SmsCapacity {
+    #[serde(deserialize_with = "de::from_str")]
+    pub sms_nv_total: usize,
+    #[serde(deserialize_with = "de::from_str")]
+    pub sms_nv_rev_total: usize,
+    #[serde(deserialize_with = "de::from_str")]
+    pub sms_nv_send_total: usize,
+    #[serde(deserialize_with = "de::from_str")]
+    pub sms_nv_draftbox_total: usize,
+}
+
+impl SmsCapacity {
+    fn used(&self) -> usize {
+        self.sms_nv_rev_total + self.sms_nv_send_total + self.sms_nv_draftbox_total
+    }
+}
+
+impl ProcGet for SmsCapacity {
+    const CMD: &str = "sms_capacity_info";
+    type Params = ();
+}
+
+#[derive(Debug, Deserialize)]
+pub struct SmsParameters {
+    pub sms_para_sca: BoxStr,
+    #[serde(deserialize_with = "de::flag")]
+    pub sms_para_status_report: bool,
+    pub default_store: SmsStore,
+}
+
+impl ProcGet for SmsParameters {
+    const CMD: &str = "sms_parameter_info";
+    type Params = ();
+}
+
+#[derive(Debug)]
+pub struct SmsSettings {
+    pub capacity: SmsCapacity,
+    pub parameters: SmsParameters,
+}
+
+impl Show for SmsSettings {
+    fn show(&self) -> EyreResult<()> {
+        let capacity = &self.capacity;
+        let parameters = &self.parameters;
+
+        let mut table = create_table();
+
+        table
+            .set_header(["SMS", "Value"])
+            .add_row([
+                "Messages",
+                &format!("{} / {}", capacity.used(), capacity.sms_nv_total),
+            ])
+            .add_row(["SMSC", or_dash(&parameters.sms_para_sca)])
+            .add_row([
+                "Delivery Reports",
+                yes_no(parameters.sms_para_status_report),
+            ])
+            .add_row(["Default Store", &parameters.default_store.to_string()]);
+
+        println!("{table}");
+
+        Ok(())
+    }
+}
+
+#[derive(Debug, Deserialize)]
 pub struct AirtimeBalance {
     /// Cached USSD text like "Airtime balance Br. 2247.50. SMS will be
     /// sent.\n1. 60 Min @20 birr\n...".

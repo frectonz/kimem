@@ -70,6 +70,8 @@ pub enum GetSmsCommands {
         /// ID of the message to show.
         msg_id: usize,
     },
+    /// Show SMS storage usage and settings.
+    Info,
 }
 
 #[derive(Subcommand, Debug)]

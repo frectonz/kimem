@@ -22,6 +22,9 @@ async fn main() -> EyreResult<()> {
             GetCommands::Sms {
                 command: Some(GetSmsCommands::Show { msg_id }),
             } => router.show_sms(msg_id).await?,
+            GetCommands::Sms {
+                command: Some(GetSmsCommands::Info),
+            } => router.show_sms_info().await?,
             GetCommands::Syslog => router.show_syslog().await?,
             GetCommands::Airtime => router.show::<AirtimeBalance>().await?,
             GetCommands::Power => router.show_multi::<Power>().await?,

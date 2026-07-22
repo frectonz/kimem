@@ -336,6 +336,35 @@ impl std::fmt::Display for MessageStatus {
     }
 }
 
+/// Where the router saves new SMS (`default_store`): "nv" (device) or "sim".
+#[derive(Debug, Clone)]
+pub enum SmsStore {
+    Device,
+    Sim,
+    Other(BoxStr),
+}
+
+impl<'de> Deserialize<'de> for SmsStore {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let raw = BoxStr::deserialize(deserializer)?;
+        Ok(match raw.as_ref() {
+            "nv" => Self::Device,
+            "sim" => Self::Sim,
+            _ => Self::Other(raw),
+        })
+    }
+}
+
+impl std::fmt::Display for SmsStore {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Device => write!(f, "Device"),
+            Self::Sim => write!(f, "SIM"),
+            Self::Other(store) => write!(f, "{store}"),
+        }
+    }
+}
+
 /// The firmware build stamp in "YYYY-MM-DD_HH:MM" format ("2025-02-19_13:59").
 #[derive(Debug, Clone)]
 pub struct BuildTime(jiff::civil::DateTime);
