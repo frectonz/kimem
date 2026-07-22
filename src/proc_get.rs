@@ -472,7 +472,9 @@ impl<'de> serde::Deserialize<'de> for ApnProfile {
         let raw = BoxStr::deserialize(deserializer)?;
         let fields: BoxList<&str> = raw.split("($)").collect();
         let [name, apn, _, _, auth, user, pass, pdp, _, _, dns, ..] = fields.as_ref() else {
-            return Err(serde::de::Error::custom(format!("malformed APN config: {raw:?}")));
+            return Err(serde::de::Error::custom(format!(
+                "malformed APN config: {raw:?}"
+            )));
         };
 
         Ok(Self {
