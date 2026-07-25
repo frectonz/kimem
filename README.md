@@ -9,11 +9,13 @@ kimem get info               Router status information
 kimem get system             Router system information
 kimem get signal             Router connection signal information
 kimem get internet           Router internet connection information
+kimem get apn                Active APN (access point) configuration
 kimem get device             Router device information
 kimem get wifi               Router wifi config information
 kimem get devices            List connected devices
 kimem get sms                List SMS messages
 kimem get sms show <msg_id>  Show full SMS message
+kimem get sms info           Show SMS storage usage and settings
 kimem get syslog             Show router system logs
 kimem get airtime            Last cached airtime balance
 kimem get power              Router power information
@@ -34,13 +36,13 @@ The router address and credentials default to `192.168.0.1` / `admin` /
 ### Install via shell script (MacOS and Linux)
 
 ```sh
-curl --proto '=https' --tlsv1.2 -LsSf https://github.com/frectonz/kimem/releases/download/v0.1.0/kimem-installer.sh | sh
+curl --proto '=https' --tlsv1.2 -LsSf https://github.com/frectonz/kimem/releases/download/v0.1.1/kimem-installer.sh | sh
 ```
 
 ### Install via powershell script (Windows)
 
 ```sh
-powershell -ExecutionPolicy Bypass -c "irm https://github.com/frectonz/kimem/releases/download/v0.1.0/kimem-installer.ps1 | iex"
+powershell -ExecutionPolicy Bypass -c "irm https://github.com/frectonz/kimem/releases/download/v0.1.1/kimem-installer.ps1 | iex"
 ```
 
 ### Nix (Build from source)
@@ -48,7 +50,7 @@ powershell -ExecutionPolicy Bypass -c "irm https://github.com/frectonz/kimem/rel
 #### Fetch from [FlakeHub](https://flakehub.com/flake/frectonz/kimem)
 
 ```
-nix shell "https://flakehub.com/f/frectonz/kimem/0.1.0"
+nix shell "https://flakehub.com/f/frectonz/kimem/0.1.1"
 ```
 
 #### Fetch from GitHub
