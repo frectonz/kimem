@@ -110,7 +110,8 @@ impl Show for SmsInbox {
 
         for message in &self.messages {
             let id = message.id.to_string();
-            let content = truncate_chars(message.content.trim(), 24);
+            let content = message.content.trim().replace('\n', " ");
+            let content = truncate_chars(&content, 24);
             let tag = message.tag.to_string();
             let date = message.date.to_string();
 

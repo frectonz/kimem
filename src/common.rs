@@ -42,7 +42,11 @@ pub fn ucs2_decode(hex_str: &str) -> EyreResult<BoxStr> {
         .map(|c| u16::from_be_bytes([c[0], c[1]]))
         .collect();
 
-    let str = String::from_utf16(&units)?.into_boxed_str();
+    // SMS bodies use CRLF line breaks; a raw \r reaching the terminal
+    // overwrites the current line.
+    let str = String::from_utf16(&units)?
+        .replace('\r', "")
+        .into_boxed_str();
 
     Ok(str)
 }
