@@ -21,9 +21,8 @@ struct FormBody<T> {
     payload: T,
 }
 
-/// Parse a router response, tolerating the duplicate JSON keys some reads
-/// (`home_get`, `system_status`) produce: round-tripping through `Value`
-/// keeps the last occurrence instead of failing deserialization.
+/// Parse a router response, tolerating the duplicate JSON keys.
+/// Keeps the last occurrence instead of failing deserialization.
 async fn parse_json<T: serde::de::DeserializeOwned>(response: reqwest::Response) -> EyreResult<T> {
     let text = response.text().await?;
 
@@ -79,28 +78,29 @@ impl Router {
         parse_json(self.fetch(&url).await?).await
     }
 
+    async fn post<T: Serialize>(&self, form: &FormBody<T>) -> EyreResult<reqwest::Response> {
+        let address = self.address.as_ref();
+        let url = format!("{address}/reqproc/proc_post");
+
+        self.client
+            .post(url)
+            .form(form)
+            .header(REFERER, address)
+            .send()
+            .await
+            .map_err(Into::into)
+    }
+
     pub async fn create_post<Req: ProcPost>(
         &self,
         params: Req::Params,
     ) -> EyreResult<reqwest::Response> {
-        let address = self.address.as_ref();
-        let url = format!("{address}/reqproc/proc_post");
-
         let form = FormBody {
             goform_id: Req::GOFORM_ID.into(),
             payload: params,
         };
 
-        with_retry(|| async {
-            self.client
-                .post(&url)
-                .form(&form)
-                .header(REFERER, self.address.as_ref())
-                .send()
-                .await
-                .map_err(Into::into)
-        })
-        .await
+        with_retry(|| self.post(&form)).await
     }
 
     pub async fn post_with<Req: ProcPost>(&self, params: Req::Params) -> EyreResult<Req> {
@@ -128,17 +128,17 @@ impl Router {
     }
 
     pub async fn logout(&self) -> EyreResult<()> {
-        // The response body is flaky (sometimes empty, sometimes JSON)
-        // and we don't act on it either way, so only transport errors
-        // matter here.
         self.create_post::<Logout>(()).await?;
         Ok(())
     }
 
     pub async fn reboot(&self) -> EyreResult<()> {
-        // The router kills the connection mid-reboot, so an error here is
-        // the expected outcome.
-        let _ = self.create_post::<RebootDevice>(()).await;
+        let form = FormBody {
+            goform_id: RebootDevice::GOFORM_ID.into(),
+            payload: (),
+        };
+
+        let _ = self.post(&form).await;
         println!("Device rebooting.");
         Ok(())
     }
@@ -155,9 +155,6 @@ impl Router {
         self.post_with::<T>(params).await?.show()
     }
 
-    /// Run an interactive USSD session: dial the code, print each network
-    /// response, and read menu replies from stdin until EOF / "q" / an
-    /// empty line. The network session is always cancelled on the way out.
     pub async fn ussd_session(&self, code: &str) -> EyreResult<()> {
         self.post_with::<UssdProcess>(UssdParams::send(code))
             .await?;
@@ -187,8 +184,6 @@ impl Router {
         loop {
             let line = match editor.readline("> ") {
                 Ok(line) => line,
-                // Ctrl-C / Ctrl-D quit the dialog, not the process, so
-                // the session still gets cancelled on the way out.
                 Err(ReadlineError::Interrupted | ReadlineError::Eof) => break,
                 Err(e) => return Err(e.into()),
             };
@@ -205,8 +200,6 @@ impl Router {
         Ok(())
     }
 
-    /// Piped stdin (`echo 2 | kimem post ussd menu`): no prompts, no
-    /// line editing, just replies.
     async fn ussd_dialog_piped(&self) -> EyreResult<()> {
         use std::io::BufRead;
 
@@ -229,7 +222,6 @@ impl Router {
         self.ussd_print_response().await
     }
 
-    /// Poll until the network answers, then print the decoded response.
     async fn ussd_print_response(&self) -> EyreResult<()> {
         const MAX_POLLS: u32 = 30;
 
@@ -255,8 +247,6 @@ impl Router {
         Ok(())
     }
 
-    /// Signal metrics come from `system_status`, but TAC and EARFCN only
-    /// exist as standalone cmds; join the two reads into one report.
     pub async fn show_signal(&self) -> EyreResult<()> {
         let signal = self.get::<Signal>().await?;
         let cell = self.get_multi::<CellExtras>().await?;
@@ -282,8 +272,6 @@ impl Router {
         .show()
     }
 
-    /// Device identity comes from `home_get`, but the SIM ICCID only
-    /// exists as a standalone cmd; join the two reads into one report.
     pub async fn show_device(&self) -> EyreResult<()> {
         let device = self.get::<Device>().await?;
         let sim = self.get::<SimIccid>().await?;
@@ -291,7 +279,6 @@ impl Router {
         DeviceReport { device, sim }.show()
     }
 
-    /// The syslog lives on its own endpoint and comes back as plain text.
     pub async fn show_syslog(&self) -> EyreResult<()> {
         let address = self.address.as_ref();
         let url = format!("{address}/data/syslog.html?uniquelogincredentials=1&isTest=false");
@@ -300,8 +287,6 @@ impl Router {
         page_or_print(&logs)
     }
 
-    /// There is no per-message read, so fetch the inbox and pick the
-    /// requested message out of it.
     pub async fn show_sms(&self, msg_id: usize) -> EyreResult<()> {
         let inbox = self.get::<SmsInbox>().await?;
 
