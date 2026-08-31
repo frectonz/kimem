@@ -6,7 +6,7 @@ async fn main() -> EyreResult<()> {
     color_eyre::install()?;
 
     let args = Args::parse();
-    let router = Router::new(&args.router, &args.username, &args.password)?;
+    let router = Router::new(&args.router, &args.username, &args.password, &args.format)?;
 
     router.login().await?;
     match args.command {

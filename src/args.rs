@@ -1,6 +1,7 @@
 use crate::common::*;
 use clap::{Parser, Subcommand};
-use std::net::IpAddr;
+use color_eyre::eyre;
+use std::{net::IpAddr, str::FromStr};
 
 #[derive(Parser, Debug)]
 #[command(version, about, flatten_help = true, disable_help_subcommand = true)]
@@ -13,8 +14,19 @@ pub struct Args {
     #[clap(short, long, default_value = "admin")]
     pub password: BoxStr,
 
+    #[clap(short, long, default_value = "table")]
+    pub format: Format,
+
     #[command(subcommand)]
     pub command: TopLevelCommands,
+}
+
+#[derive(Debug, Clone)]
+pub enum Format {
+    /// Print output as JSON.
+    Json,
+    /// Print output as table.
+    Table,
 }
 
 #[derive(Subcommand, Debug)]
@@ -165,4 +177,16 @@ fn parse_msg_selector(raw: &str) -> Result<MsgSelector, String> {
     raw.parse()
         .map(MsgSelector::Id)
         .map_err(|_| format!("expected a message ID or \"all\", got {raw:?}"))
+}
+
+impl FromStr for Format {
+    type Err = eyre::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "json" => Ok(Self::Json),
+            "table" => Ok(Self::Table),
+            _ => eyre::bail!("unknow format type: {s}"),
+        }
+    }
 }

@@ -70,7 +70,7 @@ impl ProcGetMulti for Info {
 }
 
 impl Show for Info {
-    fn show(&self) -> EyreResult<()> {
+    fn show_table(&self) -> EyreResult<()> {
         let mut table = create_table();
 
         table
@@ -114,7 +114,7 @@ impl ProcGetMulti for System {
 }
 
 impl Show for System {
-    fn show(&self) -> EyreResult<()> {
+    fn show_table(&self) -> EyreResult<()> {
         let mut table = create_table();
 
         table
@@ -174,7 +174,7 @@ pub struct InternetReport {
 }
 
 impl Show for InternetReport {
-    fn show(&self) -> EyreResult<()> {
+    fn show_table(&self) -> EyreResult<()> {
         let internet = &self.internet;
 
         let mut table = create_table();
@@ -262,7 +262,7 @@ impl ProcGetMulti for Wifi {
 }
 
 impl Show for Wifi {
-    fn show(&self) -> EyreResult<()> {
+    fn show_table(&self) -> EyreResult<()> {
         let mut table = create_table();
 
         table
@@ -307,7 +307,7 @@ impl ProcGetMulti for Power {
 }
 
 impl Show for Power {
-    fn show(&self) -> EyreResult<()> {
+    fn show_table(&self) -> EyreResult<()> {
         let mut table = create_table();
 
         table

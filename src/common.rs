@@ -1,10 +1,19 @@
+use crate::Format;
+
 pub type BoxStr = Box<str>;
 pub type BoxList<T> = Box<[T]>;
 pub type EyreResult<T> = color_eyre::Result<T>;
 
 /// Render a value fetched from the router on stdout.
 pub trait Show {
-    fn show(&self) -> EyreResult<()>;
+    fn show(&self, format: &Format) -> EyreResult<()> {
+        match format {
+            Format::Json => todo!(),
+            Format::Table => self.show_table(),
+        }
+    }
+
+    fn show_table(&self) -> EyreResult<()>;
 }
 
 pub fn b64_encode(input: &str) -> BoxStr {

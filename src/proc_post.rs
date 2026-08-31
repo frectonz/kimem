@@ -91,7 +91,7 @@ impl ProcPost for DeleteSms {
 }
 
 impl Show for DeleteSms {
-    fn show(&self) -> EyreResult<()> {
+    fn show_table(&self) -> EyreResult<()> {
         let mut table = create_table();
         table.set_header(["Delete Result"]).add_row([&self.result]);
         println!("{table}");
@@ -140,7 +140,7 @@ impl ProcPost for SendSms {
 }
 
 impl Show for SendSms {
-    fn show(&self) -> EyreResult<()> {
+    fn show_table(&self) -> EyreResult<()> {
         let mut table = create_table();
         table.set_header(["Send Result"]).add_row([&self.result]);
         println!("{table}");
@@ -223,7 +223,7 @@ impl ProcPost for MarkSms {
 }
 
 impl Show for MarkSms {
-    fn show(&self) -> EyreResult<()> {
+    fn show_table(&self) -> EyreResult<()> {
         let mut table = create_table();
         table.set_header(["Mark Result"]).add_row([&self.result]);
         println!("{table}");

@@ -41,7 +41,7 @@ impl ProcGet for StationList {
 }
 
 impl Show for StationList {
-    fn show(&self) -> EyreResult<()> {
+    fn show_table(&self) -> EyreResult<()> {
         let mut table = create_table();
         table.set_header(["Hostname", "IP Address", "MAC Address", "Type", "IP Type"]);
 
@@ -104,7 +104,7 @@ impl ProcGet for SmsInbox {
 }
 
 impl Show for SmsInbox {
-    fn show(&self) -> EyreResult<()> {
+    fn show_table(&self) -> EyreResult<()> {
         let mut table = create_table();
         table.set_header(["ID", "Number", "Content", "Status", "Date"]);
 
@@ -125,7 +125,7 @@ impl Show for SmsInbox {
 }
 
 impl Show for Message {
-    fn show(&self) -> EyreResult<()> {
+    fn show_table(&self) -> EyreResult<()> {
         let mut table = create_table();
 
         table
@@ -185,7 +185,7 @@ pub struct SmsSettings {
 }
 
 impl Show for SmsSettings {
-    fn show(&self) -> EyreResult<()> {
+    fn show_table(&self) -> EyreResult<()> {
         let capacity = &self.capacity;
         let parameters = &self.parameters;
 
@@ -240,7 +240,7 @@ impl ProcGet for AirtimeBalance {
 }
 
 impl Show for AirtimeBalance {
-    fn show(&self) -> EyreResult<()> {
+    fn show_table(&self) -> EyreResult<()> {
         let mut table = create_table();
         table.set_header(["Airtime Balance"]);
 
@@ -352,7 +352,7 @@ pub struct SignalReport {
 }
 
 impl Show for SignalReport {
-    fn show(&self) -> EyreResult<()> {
+    fn show_table(&self) -> EyreResult<()> {
         let mut table = create_table();
 
         table
@@ -426,7 +426,7 @@ pub struct DeviceReport {
 }
 
 impl Show for DeviceReport {
-    fn show(&self) -> EyreResult<()> {
+    fn show_table(&self) -> EyreResult<()> {
         let mut table = create_table();
 
         table
@@ -508,7 +508,7 @@ pub struct ApnReport {
 }
 
 impl Show for ApnReport {
-    fn show(&self) -> EyreResult<()> {
+    fn show_table(&self) -> EyreResult<()> {
         let profile = &self.profile;
 
         let mut table = create_table();

@@ -38,15 +38,22 @@ pub struct Router {
     address: BoxStr,
     username: BoxStr,
     password: BoxStr,
+    format: Format,
 }
 
 impl Router {
-    pub fn new(router: &IpAddr, username: &str, password: &str) -> EyreResult<Self> {
+    pub fn new(
+        router: &IpAddr,
+        username: &str,
+        password: &str,
+        format: &Format,
+    ) -> EyreResult<Self> {
         Ok(Self {
             client: reqwest::Client::builder().user_agent("Kimem CLI").build()?,
             address: format!("http://{router}").into_boxed_str(),
             username: username.into(),
             password: password.into(),
+            format: format.to_owned(),
         })
     }
 
@@ -144,15 +151,15 @@ impl Router {
     }
 
     pub async fn show<T: ProcGet + Show>(&self) -> EyreResult<()> {
-        self.get::<T>().await?.show()
+        self.get::<T>().await?.show(&self.format)
     }
 
     pub async fn show_multi<T: ProcGetMulti + Show>(&self) -> EyreResult<()> {
-        self.get_multi::<T>().await?.show()
+        self.get_multi::<T>().await?.show(&self.format)
     }
 
     pub async fn execute<T: ProcPost + Show>(&self, params: T::Params) -> EyreResult<()> {
-        self.post_with::<T>(params).await?.show()
+        self.post_with::<T>(params).await?.show(&self.format)
     }
 
     pub async fn ussd_session(&self, code: &str) -> EyreResult<()> {
@@ -251,14 +258,14 @@ impl Router {
         let signal = self.get::<Signal>().await?;
         let cell = self.get_multi::<CellExtras>().await?;
 
-        SignalReport { signal, cell }.show()
+        SignalReport { signal, cell }.show(&self.format)
     }
 
     pub async fn show_internet(&self) -> EyreResult<()> {
         let internet = self.get_multi::<Internet>().await?;
         let wan = self.get::<WanDetails>().await?;
 
-        InternetReport { internet, wan }.show()
+        InternetReport { internet, wan }.show(&self.format)
     }
 
     pub async fn show_apn(&self) -> EyreResult<()> {
@@ -269,14 +276,14 @@ impl Router {
             status,
             profile: config.profile,
         }
-        .show()
+        .show(&self.format)
     }
 
     pub async fn show_device(&self) -> EyreResult<()> {
         let device = self.get::<Device>().await?;
         let sim = self.get::<SimIccid>().await?;
 
-        DeviceReport { device, sim }.show()
+        DeviceReport { device, sim }.show(&self.format)
     }
 
     pub async fn show_syslog(&self) -> EyreResult<()> {
@@ -295,7 +302,7 @@ impl Router {
             .iter()
             .find(|message| message.id == msg_id)
             .ok_or_else(|| eyre!("no message with id {msg_id}"))?
-            .show()
+            .show(&self.format)
     }
 
     pub async fn show_sms_info(&self) -> EyreResult<()> {
@@ -306,7 +313,7 @@ impl Router {
             capacity,
             parameters,
         }
-        .show()
+        .show(&self.format)
     }
 
     pub async fn delete_all_sms(&self) -> EyreResult<()> {
