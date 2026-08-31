@@ -36,13 +36,13 @@ The router address and credentials default to `192.168.0.1` / `admin` /
 ### Install via shell script (MacOS and Linux)
 
 ```sh
-curl --proto '=https' --tlsv1.2 -LsSf https://github.com/frectonz/kimem/releases/download/v0.1.2/kimem-installer.sh | sh
+curl --proto '=https' --tlsv1.2 -LsSf https://github.com/frectonz/kimem/releases/download/v0.1.3/kimem-installer.sh | sh
 ```
 
 ### Install via powershell script (Windows)
 
 ```sh
-powershell -ExecutionPolicy Bypass -c "irm https://github.com/frectonz/kimem/releases/download/v0.1.2/kimem-installer.ps1 | iex"
+powershell -ExecutionPolicy Bypass -c "irm https://github.com/frectonz/kimem/releases/download/v0.1.3/kimem-installer.ps1 | iex"
 ```
 
 ### Nix (Build from source)
@@ -50,7 +50,7 @@ powershell -ExecutionPolicy Bypass -c "irm https://github.com/frectonz/kimem/rel
 #### Fetch from [FlakeHub](https://flakehub.com/flake/frectonz/kimem)
 
 ```
-nix shell "https://flakehub.com/f/frectonz/kimem/0.1.2"
+nix shell "https://flakehub.com/f/frectonz/kimem/0.1.3"
 ```
 
 #### Fetch from GitHub
