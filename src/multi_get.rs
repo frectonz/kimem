@@ -1,7 +1,7 @@
 use crate::common::*;
 use crate::proc_get::WanDetails;
 use crate::types::*;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 /// A read from `/reqproc/proc_get` that batches several `cmd`s in one
 /// request via `multi_data=1`.
@@ -70,6 +70,33 @@ impl ProcGetMulti for Info {
 }
 
 impl Show for Info {
+    fn show_json(&self) -> EyreResult<()> {
+        #[derive(Serialize)]
+        struct InfoJson<'a> {
+            phone_number: Option<&'a str>,
+            network_type: &'a str,
+            operator: Option<&'a str>,
+            plmn: &'a str,
+            signal_bars: u8,
+            internet: &'a PppStatus,
+            unread_sms: usize,
+            battery_percent: u8,
+            connected_devices: usize,
+        }
+
+        print_json(&InfoJson {
+            phone_number: self.phone_number(),
+            network_type: &self.network_type,
+            operator: or_none(&self.sim_spn),
+            plmn: &self.sim_plmn,
+            signal_bars: self.signalbar,
+            internet: &self.ppp_status,
+            unread_sms: self.sms_unread_num,
+            battery_percent: self.battery_percentage,
+            connected_devices: self.sta_count,
+        })
+    }
+
     fn show_table(&self) -> EyreResult<()> {
         let mut table = create_table();
 
@@ -114,6 +141,29 @@ impl ProcGetMulti for System {
 }
 
 impl Show for System {
+    fn show_json(&self) -> EyreResult<()> {
+        #[derive(Serialize)]
+        struct SystemJson {
+            memory_total_bytes: Bytes,
+            memory_free_bytes: Bytes,
+            memory_cached_bytes: Bytes,
+            memory_active_bytes: Bytes,
+            cpu_usage_percent: Percent,
+            flash_used_mb: MegaBytes,
+            flash_total_mb: MegaBytes,
+        }
+
+        print_json(&SystemJson {
+            memory_total_bytes: self.mem_total.into(),
+            memory_free_bytes: self.mem_free.into(),
+            memory_cached_bytes: self.mem_cached.into(),
+            memory_active_bytes: self.mem_active.into(),
+            cpu_usage_percent: self.tz_cpu_usage,
+            flash_used_mb: self.tz_flash_use,
+            flash_total_mb: self.tz_flash_total,
+        })
+    }
+
     fn show_table(&self) -> EyreResult<()> {
         let mut table = create_table();
 
@@ -174,6 +224,45 @@ pub struct InternetReport {
 }
 
 impl Show for InternetReport {
+    fn show_json(&self) -> EyreResult<()> {
+        #[derive(Serialize)]
+        struct InternetJson<'a> {
+            status: &'a PppStatus,
+            wan_ip: Option<&'a str>,
+            gateway: Option<&'a str>,
+            netmask: Option<&'a str>,
+            dns: &'a DnsServers,
+            lan_domain: &'a str,
+            imsi: &'a str,
+            download_bytes_per_second: BytesPerSecond,
+            upload_bytes_per_second: BytesPerSecond,
+            realtime_rx_bytes: Bytes,
+            realtime_tx_bytes: Bytes,
+            monthly_rx_bytes: Bytes,
+            monthly_tx_bytes: Bytes,
+            monthly_online_seconds: Seconds,
+        }
+
+        let internet = &self.internet;
+
+        print_json(&InternetJson {
+            status: &internet.ppp_status,
+            wan_ip: or_none(&internet.wan_ipaddr),
+            gateway: or_none(&self.wan.gateway),
+            netmask: or_none(&self.wan.netmask),
+            dns: &self.wan.dns,
+            lan_domain: &internet.lan_domain,
+            imsi: &internet.sim_imsi,
+            download_bytes_per_second: internet.realtime_rx_thrpt,
+            upload_bytes_per_second: internet.realtime_tx_thrpt,
+            realtime_rx_bytes: internet.realtime_rx_bytes,
+            realtime_tx_bytes: internet.realtime_tx_bytes,
+            monthly_rx_bytes: internet.monthly_rx_bytes,
+            monthly_tx_bytes: internet.monthly_tx_bytes,
+            monthly_online_seconds: internet.monthly_time,
+        })
+    }
+
     fn show_table(&self) -> EyreResult<()> {
         let internet = &self.internet;
 
@@ -262,6 +351,39 @@ impl ProcGetMulti for Wifi {
 }
 
 impl Show for Wifi {
+    fn show_json(&self) -> EyreResult<()> {
+        #[derive(Serialize)]
+        struct WifiJson<'a> {
+            ssid: &'a str,
+            ssid_visible: bool,
+            mac_address: &'a str,
+            max_stations: u8,
+            channel: u8,
+            channel_bandwidth: ChannelBandwidth,
+            auth_mode: &'a str,
+            password: &'a str,
+            guest_ssid: Option<&'a str>,
+            guest_ssid_enabled: bool,
+            dhcp_start: &'a str,
+            dhcp_end: &'a str,
+        }
+
+        print_json(&WifiJson {
+            ssid: &self.ssid,
+            ssid_visible: !self.ssid_hidden,
+            mac_address: &self.wifi_mac,
+            max_stations: self.max_station_num,
+            channel: self.channel,
+            channel_bandwidth: self.channel_bandwidth,
+            auth_mode: &self.auth_mode,
+            password: &self.password,
+            guest_ssid: or_none(&self.guest_ssid),
+            guest_ssid_enabled: self.guest_ssid_enabled,
+            dhcp_start: &self.dhcp_start,
+            dhcp_end: &self.dhcp_end,
+        })
+    }
+
     fn show_table(&self) -> EyreResult<()> {
         let mut table = create_table();
 
@@ -307,6 +429,23 @@ impl ProcGetMulti for Power {
 }
 
 impl Show for Power {
+    fn show_json(&self) -> EyreResult<()> {
+        #[derive(Serialize)]
+        struct PowerJson {
+            battery_present: bool,
+            battery_percent: u8,
+            battery_power: u8,
+            connected_to_power: bool,
+        }
+
+        print_json(&PowerJson {
+            battery_present: self.battery_exist,
+            battery_percent: self.battery_percentage,
+            battery_power: self.battery_value,
+            connected_to_power: self.power_exist,
+        })
+    }
+
     fn show_table(&self) -> EyreResult<()> {
         let mut table = create_table();
 

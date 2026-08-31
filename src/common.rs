@@ -8,11 +8,12 @@ pub type EyreResult<T> = color_eyre::Result<T>;
 pub trait Show {
     fn show(&self, format: &Format) -> EyreResult<()> {
         match format {
-            Format::Json => todo!(),
+            Format::Json => self.show_json(),
             Format::Table => self.show_table(),
         }
     }
 
+    fn show_json(&self) -> EyreResult<()>;
     fn show_table(&self) -> EyreResult<()>;
 }
 
@@ -129,9 +130,18 @@ pub fn print_framed(text: &str) {
     println!("{rule}\n{text}\n{rule}");
 }
 
+pub fn print_json<T: serde::Serialize>(value: &T) -> EyreResult<()> {
+    println!("{}", serde_json::to_string(value)?);
+    Ok(())
+}
+
 /// Substitute a dash for fields the router reports as empty.
 pub const fn or_dash(value: &str) -> &str {
     if value.is_empty() { "—" } else { value }
+}
+
+pub const fn or_none(value: &str) -> Option<&str> {
+    if value.is_empty() { None } else { Some(value) }
 }
 
 pub const fn yes_no(value: bool) -> &'static str {

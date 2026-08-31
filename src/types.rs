@@ -2,7 +2,7 @@
 //! level, so the rest of the code works with real Rust types.
 
 use crate::common::*;
-use serde::{Deserialize, Deserializer, de::Error as _};
+use serde::{Deserialize, Deserializer, Serialize, Serializer, de::Error as _};
 use std::net::IpAddr;
 
 /// `deserialize_with` helpers for fields that don't warrant a dedicated type.
@@ -74,7 +74,7 @@ where
 }
 
 /// A byte counter transmitted as a decimal string ("1237026476").
-#[derive(Debug, Clone, Copy, Deserialize)]
+#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 pub struct Bytes(#[serde(deserialize_with = "de::from_str")] pub u64);
 
 impl std::fmt::Display for Bytes {
@@ -84,7 +84,7 @@ impl std::fmt::Display for Bytes {
 }
 
 /// A live throughput in bytes per second ("2339").
-#[derive(Debug, Clone, Copy, Deserialize)]
+#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 pub struct BytesPerSecond(#[serde(deserialize_with = "de::from_str")] pub u64);
 
 impl std::fmt::Display for BytesPerSecond {
@@ -123,8 +123,14 @@ impl std::fmt::Display for KibiBytes {
     }
 }
 
+impl From<KibiBytes> for Bytes {
+    fn from(value: KibiBytes) -> Self {
+        Self(value.0 * 1024)
+    }
+}
+
 /// A megabyte quantity transmitted as a bare decimal string ("36.15").
-#[derive(Debug, Clone, Copy, Deserialize)]
+#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 pub struct MegaBytes(#[serde(deserialize_with = "de::from_str")] pub f64);
 
 impl std::fmt::Display for MegaBytes {
@@ -134,7 +140,7 @@ impl std::fmt::Display for MegaBytes {
 }
 
 /// A percentage like "24.78%".
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Serialize)]
 pub struct Percent(pub f64);
 
 impl<'de> Deserialize<'de> for Percent {
@@ -155,7 +161,7 @@ impl std::fmt::Display for Percent {
 }
 
 /// A duration in seconds ("10476" → "2h 54m 36s").
-#[derive(Debug, Clone, Copy, Deserialize)]
+#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 pub struct Seconds(#[serde(deserialize_with = "de::from_str")] pub u64);
 
 impl std::fmt::Display for Seconds {
@@ -183,7 +189,7 @@ impl std::fmt::Display for Seconds {
 }
 
 /// A signal level in dBm; empty when the metric doesn't apply.
-#[derive(Debug, Clone, Copy, Deserialize)]
+#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 pub struct Dbm(#[serde(deserialize_with = "optional_f64")] pub Option<f64>);
 
 impl std::fmt::Display for Dbm {
@@ -196,7 +202,7 @@ impl std::fmt::Display for Dbm {
 }
 
 /// A signal ratio in dB; empty when the metric doesn't apply.
-#[derive(Debug, Clone, Copy, Deserialize)]
+#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 pub struct Decibels(#[serde(deserialize_with = "optional_f64")] pub Option<f64>);
 
 impl std::fmt::Display for Decibels {
@@ -209,7 +215,7 @@ impl std::fmt::Display for Decibels {
 }
 
 /// A comma-separated resolver list ("10.44.137.4,10.43.137.4").
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct DnsServers(pub BoxList<IpAddr>);
 
 impl<'de> Deserialize<'de> for DnsServers {
@@ -274,6 +280,12 @@ impl std::fmt::Display for PppStatus {
     }
 }
 
+impl Serialize for PppStatus {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.collect_str(self)
+    }
+}
+
 /// Wi-Fi channel bandwidth, derived from `wifi_11n_cap` the same way the
 /// router's own web UI does.
 #[derive(Debug, Clone, Copy)]
@@ -301,6 +313,12 @@ impl std::fmt::Display for ChannelBandwidth {
             Self::Mhz20Or40 => write!(f, "20MHz/40MHz"),
             Self::Mhz40 => write!(f, "40MHz"),
         }
+    }
+}
+
+impl Serialize for ChannelBandwidth {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.collect_str(self)
     }
 }
 
@@ -336,6 +354,12 @@ impl std::fmt::Display for MessageStatus {
     }
 }
 
+impl Serialize for MessageStatus {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.collect_str(self)
+    }
+}
+
 /// Where the router saves new SMS (`default_store`): "nv" (device) or "sim".
 #[derive(Debug, Clone)]
 pub enum SmsStore {
@@ -365,6 +389,12 @@ impl std::fmt::Display for SmsStore {
     }
 }
 
+impl Serialize for SmsStore {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.collect_str(self)
+    }
+}
+
 /// The firmware build stamp in "YYYY-MM-DD_HH:MM" format ("2025-02-19_13:59").
 #[derive(Debug, Clone)]
 pub struct BuildTime(jiff::civil::DateTime);
@@ -381,6 +411,12 @@ impl<'de> Deserialize<'de> for BuildTime {
 impl std::fmt::Display for BuildTime {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.0.strftime("%F %R"))
+    }
+}
+
+impl Serialize for BuildTime {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.collect_str(&self.0)
     }
 }
 
@@ -426,5 +462,11 @@ impl std::fmt::Display for Datetime {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let datetime = self.datetime.strftime("%F %r");
         write!(f, "{datetime}")
+    }
+}
+
+impl Serialize for Datetime {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.collect_str(&self.datetime.strftime("%FT%T%:z"))
     }
 }

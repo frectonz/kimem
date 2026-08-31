@@ -91,6 +91,17 @@ impl ProcPost for DeleteSms {
 }
 
 impl Show for DeleteSms {
+    fn show_json(&self) -> EyreResult<()> {
+        #[derive(Serialize)]
+        struct DeleteSmsJson<'a> {
+            result: &'a str,
+        }
+
+        print_json(&DeleteSmsJson {
+            result: &self.result,
+        })
+    }
+
     fn show_table(&self) -> EyreResult<()> {
         let mut table = create_table();
         table.set_header(["Delete Result"]).add_row([&self.result]);
@@ -140,6 +151,17 @@ impl ProcPost for SendSms {
 }
 
 impl Show for SendSms {
+    fn show_json(&self) -> EyreResult<()> {
+        #[derive(Serialize)]
+        struct SendSmsJson<'a> {
+            result: &'a str,
+        }
+
+        print_json(&SendSmsJson {
+            result: &self.result,
+        })
+    }
+
     fn show_table(&self) -> EyreResult<()> {
         let mut table = create_table();
         table.set_header(["Send Result"]).add_row([&self.result]);
@@ -223,6 +245,17 @@ impl ProcPost for MarkSms {
 }
 
 impl Show for MarkSms {
+    fn show_json(&self) -> EyreResult<()> {
+        #[derive(Serialize)]
+        struct MarkSmsJson<'a> {
+            result: &'a str,
+        }
+
+        print_json(&MarkSmsJson {
+            result: &self.result,
+        })
+    }
+
     fn show_table(&self) -> EyreResult<()> {
         let mut table = create_table();
         table.set_header(["Mark Result"]).add_row([&self.result]);

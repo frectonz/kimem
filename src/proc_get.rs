@@ -41,6 +41,32 @@ impl ProcGet for StationList {
 }
 
 impl Show for StationList {
+    fn show_json(&self) -> EyreResult<()> {
+        #[derive(Serialize)]
+        struct ConnectedDeviceJson<'a> {
+            hostname: Option<&'a str>,
+            ip_address: &'a str,
+            mac_address: &'a str,
+            #[serde(rename = "type")]
+            dev_type: &'a str,
+            ip_type: &'a str,
+        }
+
+        let devices: BoxList<ConnectedDeviceJson> = self
+            .station_list
+            .iter()
+            .map(|device| ConnectedDeviceJson {
+                hostname: or_none(&device.hostname),
+                ip_address: &device.ip_addr,
+                mac_address: &device.mac_addr,
+                dev_type: &device.dev_type,
+                ip_type: &device.ip_type,
+            })
+            .collect();
+
+        print_json(&devices)
+    }
+
     fn show_table(&self) -> EyreResult<()> {
         let mut table = create_table();
         table.set_header(["Hostname", "IP Address", "MAC Address", "Type", "IP Type"]);
@@ -104,6 +130,31 @@ impl ProcGet for SmsInbox {
 }
 
 impl Show for SmsInbox {
+    fn show_json(&self) -> EyreResult<()> {
+        #[derive(Serialize)]
+        struct MessageJson<'a> {
+            id: usize,
+            number: &'a str,
+            status: &'a MessageStatus,
+            date: &'a Datetime,
+            content: &'a str,
+        }
+
+        let messages: BoxList<MessageJson> = self
+            .messages
+            .iter()
+            .map(|message| MessageJson {
+                id: message.id,
+                number: &message.number,
+                status: &message.tag,
+                date: &message.date,
+                content: message.content.trim(),
+            })
+            .collect();
+
+        print_json(&messages)
+    }
+
     fn show_table(&self) -> EyreResult<()> {
         let mut table = create_table();
         table.set_header(["ID", "Number", "Content", "Status", "Date"]);
@@ -125,6 +176,25 @@ impl Show for SmsInbox {
 }
 
 impl Show for Message {
+    fn show_json(&self) -> EyreResult<()> {
+        #[derive(Serialize)]
+        struct MessageJson<'a> {
+            id: usize,
+            number: &'a str,
+            status: &'a MessageStatus,
+            date: &'a Datetime,
+            content: &'a str,
+        }
+
+        print_json(&MessageJson {
+            id: self.id,
+            number: &self.number,
+            status: &self.tag,
+            date: &self.date,
+            content: self.content.trim(),
+        })
+    }
+
     fn show_table(&self) -> EyreResult<()> {
         let mut table = create_table();
 
@@ -185,6 +255,28 @@ pub struct SmsSettings {
 }
 
 impl Show for SmsSettings {
+    fn show_json(&self) -> EyreResult<()> {
+        #[derive(Serialize)]
+        struct SmsSettingsJson<'a> {
+            messages_used: usize,
+            messages_total: usize,
+            smsc: Option<&'a str>,
+            delivery_reports: bool,
+            default_store: &'a SmsStore,
+        }
+
+        let capacity = &self.capacity;
+        let parameters = &self.parameters;
+
+        print_json(&SmsSettingsJson {
+            messages_used: capacity.used(),
+            messages_total: capacity.sms_nv_total,
+            smsc: or_none(&parameters.sms_para_sca),
+            delivery_reports: parameters.sms_para_status_report,
+            default_store: &parameters.default_store,
+        })
+    }
+
     fn show_table(&self) -> EyreResult<()> {
         let capacity = &self.capacity;
         let parameters = &self.parameters;
@@ -219,18 +311,25 @@ pub struct AirtimeBalance {
 }
 
 impl AirtimeBalance {
+    fn amount(&self) -> Option<&str> {
+        let after = self.airtime_balance.split_once("Br.")?.1.trim_start();
+
+        let end = after
+            .find(|c: char| !(c.is_ascii_digit() || c == ',' || c == '.'))
+            .unwrap_or(after.len());
+        let amount = after[..end].trim_end_matches('.');
+
+        (!amount.is_empty()).then_some(amount)
+    }
+
     /// Pull the money amount ("Br. 2,247.50") out of the USSD text.
     fn balance(&self) -> Option<BoxStr> {
-        let after = self.airtime_balance.split_once("Br.")?.1;
+        self.amount()
+            .map(|amount| format!("Br. {amount}").into_boxed_str())
+    }
 
-        let amount: BoxStr = after
-            .trim_start()
-            .chars()
-            .take_while(|c| c.is_ascii_digit() || *c == ',' || *c == '.')
-            .collect();
-        let amount = amount.trim_end_matches('.');
-
-        (!amount.is_empty()).then(|| format!("Br. {amount}").into_boxed_str())
+    fn balance_birr(&self) -> Option<f64> {
+        self.amount()?.replace(',', "").parse().ok()
     }
 }
 
@@ -240,6 +339,19 @@ impl ProcGet for AirtimeBalance {
 }
 
 impl Show for AirtimeBalance {
+    fn show_json(&self) -> EyreResult<()> {
+        #[derive(Serialize)]
+        struct AirtimeBalanceJson<'a> {
+            balance_birr: Option<f64>,
+            text: &'a str,
+        }
+
+        print_json(&AirtimeBalanceJson {
+            balance_birr: self.balance_birr(),
+            text: self.airtime_balance.trim(),
+        })
+    }
+
     fn show_table(&self) -> EyreResult<()> {
         let mut table = create_table();
         table.set_header(["Airtime Balance"]);
@@ -352,6 +464,43 @@ pub struct SignalReport {
 }
 
 impl Show for SignalReport {
+    fn show_json(&self) -> EyreResult<()> {
+        #[derive(Serialize)]
+        struct SignalJson<'a> {
+            rsrp_dbm: Dbm,
+            rsrq_db: Decibels,
+            rssi_dbm: Dbm,
+            sinr_db: Decibels,
+            band: Option<&'a str>,
+            earfcn: Option<&'a str>,
+            tac: Option<&'a str>,
+            cell_id: Option<&'a str>,
+            enodeb_id: Option<&'a str>,
+            full_cell_id: Option<&'a str>,
+            pci: Option<&'a str>,
+            mcs: Option<&'a str>,
+            cqi: Option<&'a str>,
+        }
+
+        let signal = &self.signal;
+
+        print_json(&SignalJson {
+            rsrp_dbm: signal.rsrp,
+            rsrq_db: signal.rsrq,
+            rssi_dbm: signal.rssi,
+            sinr_db: signal.sinr,
+            band: or_none(&signal.band),
+            earfcn: or_none(&self.cell.nv_arfcn),
+            tac: or_none(&self.cell.lte_tac),
+            cell_id: or_none(&signal.cell_id),
+            enodeb_id: or_none(&signal.enode_id),
+            full_cell_id: or_none(&signal.full_cell_id),
+            pci: or_none(&signal.phy_cell_id),
+            mcs: or_none(&signal.mcs),
+            cqi: or_none(&signal.cqi),
+        })
+    }
+
     fn show_table(&self) -> EyreResult<()> {
         let mut table = create_table();
 
@@ -426,6 +575,35 @@ pub struct DeviceReport {
 }
 
 impl Show for DeviceReport {
+    fn show_json(&self) -> EyreResult<()> {
+        #[derive(Serialize)]
+        struct DeviceJson<'a> {
+            firmware_version: &'a str,
+            build_version: &'a str,
+            build_time: &'a BuildTime,
+            platform: &'a str,
+            serial_number: &'a str,
+            imei: &'a str,
+            ethernet_mac: &'a str,
+            sim_iccid: Option<&'a str>,
+            uptime_seconds: Seconds,
+        }
+
+        let device = &self.device;
+
+        print_json(&DeviceJson {
+            firmware_version: &device.device_version,
+            build_version: &device.real_device_version,
+            build_time: &device.build_time,
+            platform: &device.platform_version,
+            serial_number: &device.sn,
+            imei: &device.imei,
+            ethernet_mac: &device.eth0_mac,
+            sim_iccid: or_none(&self.sim.ziccid),
+            uptime_seconds: device.online_time,
+        })
+    }
+
     fn show_table(&self) -> EyreResult<()> {
         let mut table = create_table();
 
@@ -508,6 +686,33 @@ pub struct ApnReport {
 }
 
 impl Show for ApnReport {
+    fn show_json(&self) -> EyreResult<()> {
+        #[derive(Serialize)]
+        struct ApnJson<'a> {
+            mode: &'a str,
+            profile: Option<&'a str>,
+            apn: Option<&'a str>,
+            pdp_type: Option<&'a str>,
+            auth_mode: Option<&'a str>,
+            username: Option<&'a str>,
+            password: Option<&'a str>,
+            dns_mode: Option<&'a str>,
+        }
+
+        let profile = &self.profile;
+
+        print_json(&ApnJson {
+            mode: &self.status.apn_mode,
+            profile: or_none(&profile.profile_name),
+            apn: or_none(&profile.apn),
+            pdp_type: or_none(&profile.pdp_type),
+            auth_mode: or_none(&profile.auth_mode),
+            username: or_none(&profile.username),
+            password: or_none(&profile.password),
+            dns_mode: or_none(&profile.dns_mode),
+        })
+    }
+
     fn show_table(&self) -> EyreResult<()> {
         let profile = &self.profile;
 
