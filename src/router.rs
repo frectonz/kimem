@@ -30,7 +30,7 @@ async fn parse_json<T: serde::de::DeserializeOwned>(response: reqwest::Response)
         .wrap_err_with(|| format!("router returned non-JSON response: {text}"))?;
 
     serde_json::from_value(value)
-        .wrap_err_with(|| format!("unexpected response shape (session expired?): {text}"))
+        .wrap_err_with(|| format!("could not decode router response: {text}"))
 }
 
 pub struct Router {
