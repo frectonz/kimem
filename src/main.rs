@@ -39,6 +39,19 @@ async fn run_himi(router: himi::Router, command: HimiCommands) -> EyreResult<()>
             HimiPostCommands::Reboot => {
                 return router.reboot().await;
             }
+            HimiPostCommands::Wifi {
+                state: Some(WifiPower::On),
+                ..
+            } => router.wifi_on().await?,
+            HimiPostCommands::Wifi {
+                state: None,
+                changes,
+                yes,
+            } => {
+                if router.edit_wifi(changes, yes).await? {
+                    return Ok(());
+                }
+            }
         },
     }
     router.logout().await

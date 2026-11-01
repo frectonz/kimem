@@ -93,6 +93,58 @@ pub enum HimiGetCommands {
 pub enum HimiPostCommands {
     /// Reboot the router.
     Reboot,
+    /// Edit Wi-Fi settings, or turn Wi-Fi back on.
+    ///
+    /// Without arguments it prompts for every setting. With setting flags it
+    /// changes only those and keeps the rest.
+    Wifi {
+        #[arg(conflicts_with = "WifiChanges")]
+        state: Option<WifiPower>,
+        #[command(flatten)]
+        changes: WifiChanges,
+        /// Skip the confirmation prompt.
+        #[arg(short, long)]
+        yes: bool,
+    },
+}
+
+#[derive(clap::Args, Debug)]
+pub struct WifiChanges {
+    /// Network name, 1 to 64 characters.
+    #[arg(long)]
+    pub ssid: Option<String>,
+    #[arg(long)]
+    pub security: Option<WifiSecurityArg>,
+    /// Wi-Fi password, 8 to 32 characters.
+    #[arg(long)]
+    pub passphrase: Option<String>,
+    #[arg(long, value_parser = clap::value_parser!(u8).range(1..=13))]
+    pub channel: Option<u8>,
+    /// Whether the network name is broadcast.
+    #[arg(long)]
+    pub broadcast: Option<bool>,
+}
+
+#[derive(clap::ValueEnum, Clone, Copy, Debug)]
+pub enum WifiPower {
+    On,
+}
+
+#[derive(clap::ValueEnum, Clone, Copy, Debug)]
+pub enum WifiSecurityArg {
+    None,
+    WpaPsk,
+    Wpa2Psk,
+}
+
+impl WifiSecurityArg {
+    pub fn code(self) -> &'static str {
+        match self {
+            Self::None => "0",
+            Self::WpaPsk => "1",
+            Self::Wpa2Psk => "4",
+        }
+    }
 }
 
 #[derive(Subcommand, Debug)]
