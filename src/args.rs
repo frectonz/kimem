@@ -6,8 +6,9 @@ use std::{net::IpAddr, str::FromStr};
 #[derive(Parser, Debug)]
 #[command(version, about)]
 pub struct Args {
-    #[clap(short, long, default_value = "192.168.0.1")]
-    pub router: IpAddr,
+    /// Router address [default: 192.168.0.1 for zte, 192.168.100.1 for himi]
+    #[clap(short, long)]
+    pub router: Option<IpAddr>,
 
     #[clap(short, long, default_value = "admin")]
     pub username: BoxStr,
@@ -36,6 +37,62 @@ pub enum TopLevelCommands {
         #[command(subcommand)]
         command: ZteCommands,
     },
+    /// HiMILink-firmware MIFIs ("4G LTE" web UI).
+    Himi {
+        #[command(subcommand)]
+        command: HimiCommands,
+    },
+}
+
+impl Args {
+    pub fn router_address(&self) -> IpAddr {
+        let default = match self.command {
+            TopLevelCommands::Zte { .. } => [192, 168, 0, 1],
+            TopLevelCommands::Himi { .. } => [192, 168, 100, 1],
+        };
+
+        self.router.unwrap_or(IpAddr::from(default))
+    }
+}
+
+#[derive(Subcommand, Debug)]
+pub enum HimiCommands {
+    /// Commands for fetching data from the router.
+    Get {
+        #[command(subcommand)]
+        command: HimiGetCommands,
+    },
+    /// Commands for performing an action on the router.
+    Post {
+        #[command(subcommand)]
+        command: HimiPostCommands,
+    },
+}
+
+#[derive(Subcommand, Debug)]
+pub enum HimiGetCommands {
+    /// Firmware, hardware and SIM identifiers.
+    Overview,
+    /// Carrier, signal, internet, SIM and Wi-Fi state.
+    Status,
+    /// System time, uptime, CPU temperature, battery and cell.
+    System,
+    /// List connected devices.
+    Devices,
+    /// Wi-Fi access point configuration.
+    Wifi,
+    /// APN profiles and which one is active.
+    Apn,
+    /// LAN DHCP server configuration.
+    Dhcp,
+    /// Network mode, active SIM, USB tethering and connection check.
+    Network,
+}
+
+#[derive(Subcommand, Debug)]
+pub enum HimiPostCommands {
+    /// Reboot the router.
+    Reboot,
 }
 
 #[derive(Subcommand, Debug)]

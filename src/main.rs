@@ -6,14 +6,42 @@ async fn main() -> EyreResult<()> {
     color_eyre::install()?;
 
     let args = Args::parse();
+    let address = args.router_address();
 
     match args.command {
         TopLevelCommands::Zte { command } => {
-            let router =
-                zte::Router::new(&args.router, &args.username, &args.password, &args.format)?;
+            let router = zte::Router::new(&address, &args.username, &args.password, &args.format)?;
             run_zte(router, command).await
         }
+        TopLevelCommands::Himi { command } => {
+            let router =
+                himi::Router::login(&address, &args.username, &args.password, &args.format).await?;
+            run_himi(router, command).await
+        }
     }
+}
+
+async fn run_himi(router: himi::Router, command: HimiCommands) -> EyreResult<()> {
+    use himi::*;
+
+    match command {
+        HimiCommands::Get { command } => match command {
+            HimiGetCommands::Overview => router.show::<Overview>().await?,
+            HimiGetCommands::Status => router.show::<Status>().await?,
+            HimiGetCommands::System => router.show::<SystemInfo>().await?,
+            HimiGetCommands::Devices => router.show::<ConnectedDevices>().await?,
+            HimiGetCommands::Wifi => router.show::<WifiInfo>().await?,
+            HimiGetCommands::Apn => router.show::<ApnInfo>().await?,
+            HimiGetCommands::Dhcp => router.show::<DhcpInfo>().await?,
+            HimiGetCommands::Network => router.show_network().await?,
+        },
+        HimiCommands::Post { command } => match command {
+            HimiPostCommands::Reboot => {
+                return router.reboot().await;
+            }
+        },
+    }
+    router.logout().await
 }
 
 async fn run_zte(router: zte::Router, command: ZteCommands) -> EyreResult<()> {

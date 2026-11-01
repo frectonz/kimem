@@ -1,6 +1,10 @@
 # Kimem (ቅመም)
 
-Safaricom Kimem MIFI CLI
+CLI for 4G MIFI routers. Two firmware families are supported, each with
+its own command tree:
+
+- `kimem zte …` for ZTE-firmware MIFIs such as the Safaricom Kimem
+- `kimem himi …` for HiMILink-firmware MIFIs (the "4G LTE" web UI)
 
 ## Installation
 
