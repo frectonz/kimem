@@ -16,12 +16,12 @@ async fn main() -> EyreResult<()> {
         TopLevelCommands::Himi { command } => {
             let router =
                 himi::Router::login(&address, &args.username, &args.password, &args.format).await?;
-            run_himi(router, command).await
+            run_himi(router, command, &args.password).await
         }
     }
 }
 
-async fn run_himi(router: himi::Router, command: HimiCommands) -> EyreResult<()> {
+async fn run_himi(router: himi::Router, command: HimiCommands, password: &str) -> EyreResult<()> {
     use himi::*;
 
     match command {
@@ -51,6 +51,9 @@ async fn run_himi(router: himi::Router, command: HimiCommands) -> EyreResult<()>
                 if router.edit_wifi(changes, yes).await? {
                     return Ok(());
                 }
+            }
+            HimiPostCommands::Password { new_password } => {
+                return router.change_password(password, new_password).await;
             }
         },
     }

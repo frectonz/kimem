@@ -106,6 +106,12 @@ pub enum HimiPostCommands {
         #[arg(short, long)]
         yes: bool,
     },
+    /// Change the admin password.
+    Password {
+        /// The new admin password. Prompted for when omitted.
+        #[arg(long)]
+        new_password: Option<String>,
+    },
 }
 
 #[derive(clap::Args, Debug)]

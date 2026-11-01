@@ -217,4 +217,32 @@ impl Router {
 
         Ok(())
     }
+
+    pub async fn change_password(&self, current: &str, new: Option<String>) -> EyreResult<()> {
+        let new = match new {
+            Some(new) => new,
+            None => prompt(
+                Password::new("New admin password:")
+                    .with_display_mode(PasswordDisplayMode::Masked)
+                    .with_custom_confirmation_message("Confirm new admin password:")
+                    .with_validator(|s: &str| {
+                        Ok(if s.is_empty() {
+                            Validation::Invalid("must not be empty".into())
+                        } else {
+                            Validation::Valid
+                        })
+                    })
+                    .prompt(),
+            )?,
+        };
+        if new.is_empty() {
+            bail!("the new admin password must not be empty");
+        }
+
+        let params = serde_json::json!({ "oldPwd": current, "newPwd": new, "confirmPwd": new });
+        self.call::<_, Value>("changepwd", Some(params)).await?;
+        println!("Admin password changed. Pass the new one with --password from now on.");
+
+        Ok(())
+    }
 }
