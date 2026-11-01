@@ -12,6 +12,7 @@ const WIFI_SECURITY: &[(&str, &str)] = &[("0", "None"), ("1", "WPA-PSK"), ("4", 
 const WIFI_CHANNELS: RangeInclusive<u8> = 1..=13;
 const SSID_LENGTH: RangeInclusive<usize> = 1..=64;
 const PASSPHRASE_LENGTH: RangeInclusive<usize> = 8..=32;
+const NETWORK_MODES: &[(&str, &str)] = &[("0", "4G/3G"), ("1", "4G only"), ("2", "3G only")];
 
 fn prompt<T>(result: Result<T, InquireError>) -> EyreResult<T> {
     match result {
@@ -242,6 +243,36 @@ impl Router {
         let params = serde_json::json!({ "oldPwd": current, "newPwd": new, "confirmPwd": new });
         self.call::<_, Value>("changepwd", Some(params)).await?;
         println!("Admin password changed. Pass the new one with --password from now on.");
+
+        Ok(())
+    }
+
+    pub async fn set_network_mode(&self, mode: Option<NetworkModeArg>) -> EyreResult<()> {
+        let mut network = self.params("getnetworkmode").await?;
+        let current = field(&network, "netmode").to_owned();
+
+        let mode = match mode {
+            Some(mode) => mode.code(),
+            None => select_code("Network mode:", NETWORK_MODES, &current)?,
+        };
+        if mode == current {
+            println!("No changes.");
+            return Ok(());
+        }
+
+        network.insert("netmode".into(), mode.into());
+        self.call::<_, Value>("setnetworkmode", Some(Value::Object(network)))
+            .await?;
+        println!("Network mode changed.");
+
+        Ok(())
+    }
+
+    pub async fn set_usb_tether(&self, on: bool) -> EyreResult<()> {
+        let state = if on { "1" } else { "0" };
+        self.call::<_, Value>("sethimiusbtether", Some(state))
+            .await?;
+        println!("USB tethering turned {}.", if on { "on" } else { "off" });
 
         Ok(())
     }

@@ -112,6 +112,13 @@ pub enum HimiPostCommands {
         #[arg(long)]
         new_password: Option<String>,
     },
+    /// Choose which networks the modem may use.
+    NetworkMode {
+        /// Prompted for when omitted.
+        mode: Option<NetworkModeArg>,
+    },
+    /// Turn USB tethering on or off.
+    Usb { state: Toggle },
 }
 
 #[derive(clap::Args, Debug)]
@@ -132,6 +139,12 @@ pub struct WifiChanges {
 }
 
 #[derive(clap::ValueEnum, Clone, Copy, Debug)]
+pub enum Toggle {
+    On,
+    Off,
+}
+
+#[derive(clap::ValueEnum, Clone, Copy, Debug)]
 pub enum WifiPower {
     On,
 }
@@ -149,6 +162,27 @@ impl WifiSecurityArg {
             Self::None => "0",
             Self::WpaPsk => "1",
             Self::Wpa2Psk => "4",
+        }
+    }
+}
+
+#[derive(clap::ValueEnum, Clone, Copy, Debug)]
+pub enum NetworkModeArg {
+    /// 4G with 3G fallback.
+    #[value(name = "4g-3g")]
+    Auto,
+    #[value(name = "4g")]
+    Lte,
+    #[value(name = "3g")]
+    Wcdma,
+}
+
+impl NetworkModeArg {
+    pub fn code(self) -> &'static str {
+        match self {
+            Self::Auto => "0",
+            Self::Lte => "1",
+            Self::Wcdma => "2",
         }
     }
 }

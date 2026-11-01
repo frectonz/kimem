@@ -55,6 +55,10 @@ async fn run_himi(router: himi::Router, command: HimiCommands, password: &str) -
             HimiPostCommands::Password { new_password } => {
                 return router.change_password(password, new_password).await;
             }
+            HimiPostCommands::NetworkMode { mode } => router.set_network_mode(mode).await?,
+            HimiPostCommands::Usb { state } => {
+                router.set_usb_tether(matches!(state, Toggle::On)).await?
+            }
         },
     }
     router.logout().await
