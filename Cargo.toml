@@ -2,7 +2,7 @@
 name = "kimem"
 version = "0.1.4"
 edition = "2024"
-description = "Safaricom Kimem MIFI CLI"
+description = "CLI for 4G MIFI routers (ZTE Kimem, HiMILink)"
 repository = "https://github.com/frectonz/kimem"
 
 [dependencies]
