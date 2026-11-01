@@ -341,4 +341,20 @@ impl Router {
 
         Ok(())
     }
+
+    pub async fn factory_reset(&self, yes: bool) -> EyreResult<bool> {
+        if !confirm(
+            "Factory reset? This erases every setting, including the Wi-Fi name and \
+             password, the admin password and APN profiles, then reboots.",
+            yes,
+        )? {
+            println!("Nothing was changed.");
+            return Ok(false);
+        }
+
+        self.rebootcmd("freset").await?;
+        println!("Factory reset started. The router reboots with default settings.");
+
+        Ok(true)
+    }
 }

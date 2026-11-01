@@ -131,14 +131,19 @@ impl Router {
         Ok(())
     }
 
-    /// Sent exactly once: a retry after a lost reply would reboot twice.
-    pub async fn reboot(&self) -> EyreResult<()> {
+    /// Sent exactly once: a retry after a lost reply would run it twice.
+    pub(super) async fn rebootcmd(&self, mode: &str) -> EyreResult<()> {
         const CMDID: &str = "rebootcmd";
 
-        let body = serde_json::to_vec(&self.request(CMDID, Some("reboot")))?;
+        let body = serde_json::to_vec(&self.request(CMDID, Some(mode)))?;
         let text = self.post_once(body).await?;
         check::<serde_json::Value>(CMDID, decode(CMDID, &text)?)?;
 
+        Ok(())
+    }
+
+    pub async fn reboot(&self) -> EyreResult<()> {
+        self.rebootcmd("reboot").await?;
         println!("Device rebooting.");
         Ok(())
     }

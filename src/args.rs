@@ -124,6 +124,12 @@ pub enum HimiPostCommands {
         /// Profile name, as shown by `himi get apn`. Prompted for when omitted.
         name: Option<String>,
     },
+    /// Erase every setting and reboot.
+    FactoryReset {
+        /// Skip the confirmation prompt.
+        #[arg(short, long)]
+        yes: bool,
+    },
 }
 
 #[derive(clap::Args, Debug)]
