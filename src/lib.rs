@@ -3,6 +3,7 @@ mod common;
 mod retry;
 mod types;
 
+pub mod himi;
 pub mod zte;
 
 pub use args::*;
