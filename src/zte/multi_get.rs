@@ -1,5 +1,5 @@
+use super::proc_get::WanDetails;
 use crate::common::*;
-use crate::proc_get::WanDetails;
 use crate::types::*;
 use serde::{Deserialize, Serialize};
 

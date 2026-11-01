@@ -1,5 +1,5 @@
+use super::multi_get::ProcGetMulti;
 use crate::common::*;
-use crate::multi_get::ProcGetMulti;
 use crate::types::*;
 use serde::{Deserialize, Serialize};
 
