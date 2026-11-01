@@ -276,4 +276,69 @@ impl Router {
 
         Ok(())
     }
+
+    pub async fn set_apn(&self, name: Option<&str>) -> EyreResult<()> {
+        let info = self.params("getapninfo").await?;
+        let profiles = info
+            .get("apnlist")
+            .and_then(Value::as_array)
+            .filter(|profiles| !profiles.is_empty())
+            .ok_or_else(|| eyre!("router returned no APN profiles"))?;
+        let current = match info.get("apncurrent") {
+            Some(Value::Number(n)) => n.as_u64().unwrap_or(0) as usize,
+            Some(Value::String(s)) => s.parse().unwrap_or(0),
+            _ => 0,
+        };
+
+        let text = |profile: &Value, key: &str| -> String {
+            profile
+                .get(key)
+                .and_then(Value::as_str)
+                .unwrap_or_default()
+                .to_owned()
+        };
+
+        let index = match name {
+            Some(name) => profiles
+                .iter()
+                .position(|p| text(p, "apnname").eq_ignore_ascii_case(name))
+                .ok_or_else(|| {
+                    let names: Vec<String> = profiles.iter().map(|p| text(p, "apnname")).collect();
+                    eyre!(
+                        "no APN profile named {name:?}, the profiles are: {}",
+                        names.join(", ")
+                    )
+                })?,
+            None => {
+                let options: Vec<String> = profiles
+                    .iter()
+                    .map(|p| {
+                        format!(
+                            "{} ({}, {})",
+                            text(p, "apnname"),
+                            text(p, "apn"),
+                            text(p, "pdptype")
+                        )
+                    })
+                    .collect();
+                prompt(
+                    Select::new("APN:", options)
+                        .with_starting_cursor(current.min(profiles.len() - 1))
+                        .raw_prompt(),
+                )?
+                .index
+            }
+        };
+        if index == current {
+            println!("No changes.");
+            return Ok(());
+        }
+
+        let profile = &profiles[index];
+        self.call::<_, Value>("setcurrentapn", Some(profile))
+            .await?;
+        println!("Active APN changed to {}.", text(profile, "apnname"));
+
+        Ok(())
+    }
 }

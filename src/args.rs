@@ -119,6 +119,11 @@ pub enum HimiPostCommands {
     },
     /// Turn USB tethering on or off.
     Usb { state: Toggle },
+    /// Choose the active APN profile.
+    Apn {
+        /// Profile name, as shown by `himi get apn`. Prompted for when omitted.
+        name: Option<String>,
+    },
 }
 
 #[derive(clap::Args, Debug)]

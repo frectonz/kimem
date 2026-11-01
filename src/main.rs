@@ -59,6 +59,7 @@ async fn run_himi(router: himi::Router, command: HimiCommands, password: &str) -
             HimiPostCommands::Usb { state } => {
                 router.set_usb_tether(matches!(state, Toggle::On)).await?
             }
+            HimiPostCommands::Apn { name } => router.set_apn(name.as_deref()).await?,
         },
     }
     router.logout().await
