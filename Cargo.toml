@@ -1,6 +1,6 @@
 [package]
 name = "kimem"
-version = "0.1.4"
+version = "0.2.0"
 edition = "2024"
 description = "CLI for 4G MIFI routers (ZTE Kimem, HiMILink)"
 repository = "https://github.com/frectonz/kimem"

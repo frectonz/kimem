@@ -11,13 +11,13 @@ its own command tree:
 ### Install via shell script (MacOS and Linux)
 
 ```sh
-curl --proto '=https' --tlsv1.2 -LsSf https://github.com/frectonz/kimem/releases/download/v0.1.4/kimem-installer.sh | sh
+curl --proto '=https' --tlsv1.2 -LsSf https://github.com/frectonz/kimem/releases/download/v0.2.0/kimem-installer.sh | sh
 ```
 
 ### Install via powershell script (Windows)
 
 ```sh
-powershell -ExecutionPolicy Bypass -c "irm https://github.com/frectonz/kimem/releases/download/v0.1.4/kimem-installer.ps1 | iex"
+powershell -ExecutionPolicy Bypass -c "irm https://github.com/frectonz/kimem/releases/download/v0.2.0/kimem-installer.ps1 | iex"
 ```
 
 ### Nix (Build from source)
@@ -25,7 +25,7 @@ powershell -ExecutionPolicy Bypass -c "irm https://github.com/frectonz/kimem/rel
 #### Fetch from [FlakeHub](https://flakehub.com/flake/frectonz/kimem)
 
 ```
-nix shell "https://flakehub.com/f/frectonz/kimem/0.1.4"
+nix shell "https://flakehub.com/f/frectonz/kimem/0.2.0"
 ```
 
 #### Fetch from GitHub
