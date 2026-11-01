@@ -6,11 +6,22 @@ async fn main() -> EyreResult<()> {
     color_eyre::install()?;
 
     let args = Args::parse();
-    let router = Router::new(&args.router, &args.username, &args.password, &args.format)?;
+
+    match args.command {
+        TopLevelCommands::Zte { command } => {
+            let router =
+                zte::Router::new(&args.router, &args.username, &args.password, &args.format)?;
+            run_zte(router, command).await
+        }
+    }
+}
+
+async fn run_zte(router: zte::Router, command: ZteCommands) -> EyreResult<()> {
+    use zte::*;
 
     router.login().await?;
-    match args.command {
-        TopLevelCommands::Get { command } => match command {
+    match command {
+        ZteCommands::Get { command } => match command {
             GetCommands::Info => router.show_multi::<Info>().await?,
             GetCommands::System => router.show_multi::<System>().await?,
             GetCommands::Signal => router.show_signal().await?,
@@ -30,7 +41,7 @@ async fn main() -> EyreResult<()> {
             GetCommands::Airtime => router.show::<AirtimeBalance>().await?,
             GetCommands::Power => router.show_multi::<Power>().await?,
         },
-        TopLevelCommands::Post { command } => match command {
+        ZteCommands::Post { command } => match command {
             PostCommands::Reboot => {
                 // The router goes down mid-reboot, so don't try to log out.
                 return router.reboot().await;
@@ -64,7 +75,5 @@ async fn main() -> EyreResult<()> {
             },
         },
     }
-    router.logout().await?;
-
-    Ok(())
+    router.logout().await
 }

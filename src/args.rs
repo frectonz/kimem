@@ -4,7 +4,7 @@ use color_eyre::eyre;
 use std::{net::IpAddr, str::FromStr};
 
 #[derive(Parser, Debug)]
-#[command(version, about, flatten_help = true, disable_help_subcommand = true)]
+#[command(version, about)]
 pub struct Args {
     #[clap(short, long, default_value = "192.168.0.1")]
     pub router: IpAddr,
@@ -31,14 +31,21 @@ pub enum Format {
 
 #[derive(Subcommand, Debug)]
 pub enum TopLevelCommands {
+    /// ZTE-firmware MIFIs (e.g. Safaricom Kimem).
+    Zte {
+        #[command(subcommand)]
+        command: ZteCommands,
+    },
+}
+
+#[derive(Subcommand, Debug)]
+pub enum ZteCommands {
     /// Commands for fetching data from the router.
-    #[command(flatten_help = true)]
     Get {
         #[command(subcommand)]
         command: GetCommands,
     },
     /// Commands for performing an action on the router.
-    #[command(flatten_help = true)]
     Post {
         #[command(subcommand)]
         command: PostCommands,
@@ -64,7 +71,6 @@ pub enum GetCommands {
     /// List connected devices.
     Devices,
     /// List SMS messages.
-    #[command(flatten_help = true)]
     Sms {
         #[command(subcommand)]
         command: Option<GetSmsCommands>,
@@ -102,7 +108,6 @@ pub enum PostCommands {
         code: BoxStr,
     },
     /// SMS actions.
-    #[command(flatten_help = true)]
     Sms {
         #[command(subcommand)]
         command: PostSmsCommands,
