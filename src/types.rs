@@ -252,22 +252,14 @@ impl std::fmt::Display for DnsServers {
 }
 
 /// WAN connection state (`ppp_status`).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub enum PppStatus {
+    #[serde(rename(deserialize = "ppp_connected"))]
     Connected,
+    #[serde(rename(deserialize = "ppp_disconnected"))]
     Disconnected,
+    #[serde(untagged)]
     Other(BoxStr),
-}
-
-impl<'de> Deserialize<'de> for PppStatus {
-    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let raw = BoxStr::deserialize(deserializer)?;
-        Ok(match raw.as_ref() {
-            "ppp_connected" => Self::Connected,
-            "ppp_disconnected" => Self::Disconnected,
-            _ => Self::Other(raw),
-        })
-    }
 }
 
 impl std::fmt::Display for PppStatus {
@@ -280,30 +272,16 @@ impl std::fmt::Display for PppStatus {
     }
 }
 
-impl Serialize for PppStatus {
-    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        serializer.collect_str(self)
-    }
-}
-
 /// Wi-Fi channel bandwidth, derived from `wifi_11n_cap` the same way the
 /// router's own web UI does.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 pub enum ChannelBandwidth {
+    #[serde(rename(deserialize = "0", serialize = "20MHz"))]
     Mhz20,
+    #[serde(rename(deserialize = "1", serialize = "20MHz/40MHz"))]
     Mhz20Or40,
+    #[serde(other, rename(serialize = "40MHz"))]
     Mhz40,
-}
-
-impl<'de> Deserialize<'de> for ChannelBandwidth {
-    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let raw = BoxStr::deserialize(deserializer)?;
-        Ok(match raw.as_ref() {
-            "0" => Self::Mhz20,
-            "1" => Self::Mhz20Or40,
-            _ => Self::Mhz40,
-        })
-    }
 }
 
 impl std::fmt::Display for ChannelBandwidth {
@@ -316,31 +294,18 @@ impl std::fmt::Display for ChannelBandwidth {
     }
 }
 
-impl Serialize for ChannelBandwidth {
-    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        serializer.collect_str(self)
-    }
-}
-
 /// SMS state (`tag` field of an inbox message).
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[serde(rename_all(serialize = "UPPERCASE"))]
 pub enum MessageStatus {
+    #[serde(rename(deserialize = "0"))]
     Read,
+    #[serde(rename(deserialize = "1"))]
     Unread,
+    #[serde(rename(deserialize = "2"))]
     Sent,
+    #[serde(untagged)]
     Unknown(BoxStr),
-}
-
-impl<'de> Deserialize<'de> for MessageStatus {
-    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let raw = BoxStr::deserialize(deserializer)?;
-        Ok(match raw.as_ref() {
-            "0" => Self::Read,
-            "1" => Self::Unread,
-            "2" => Self::Sent,
-            _ => Self::Unknown(raw),
-        })
-    }
 }
 
 impl std::fmt::Display for MessageStatus {
@@ -354,29 +319,15 @@ impl std::fmt::Display for MessageStatus {
     }
 }
 
-impl Serialize for MessageStatus {
-    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        serializer.collect_str(self)
-    }
-}
-
 /// Where the router saves new SMS (`default_store`): "nv" (device) or "sim".
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub enum SmsStore {
+    #[serde(rename(deserialize = "nv"))]
     Device,
+    #[serde(rename(deserialize = "sim", serialize = "SIM"))]
     Sim,
+    #[serde(untagged)]
     Other(BoxStr),
-}
-
-impl<'de> Deserialize<'de> for SmsStore {
-    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let raw = BoxStr::deserialize(deserializer)?;
-        Ok(match raw.as_ref() {
-            "nv" => Self::Device,
-            "sim" => Self::Sim,
-            _ => Self::Other(raw),
-        })
-    }
 }
 
 impl std::fmt::Display for SmsStore {
@@ -386,12 +337,6 @@ impl std::fmt::Display for SmsStore {
             Self::Sim => write!(f, "SIM"),
             Self::Other(store) => write!(f, "{store}"),
         }
-    }
-}
-
-impl Serialize for SmsStore {
-    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        serializer.collect_str(self)
     }
 }
 

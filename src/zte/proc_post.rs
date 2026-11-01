@@ -1,6 +1,6 @@
 use crate::common::*;
 use crate::types::Datetime;
-use serde::{Deserialize, Deserializer, Serialize};
+use serde::{Deserialize, Serialize};
 
 /// An action on `/reqproc/proc_post` identified by a `goformId`.
 pub trait ProcPost: serde::de::DeserializeOwned {
@@ -28,24 +28,16 @@ pub struct LoginParams {
     pub unique_login_credentials: BoxStr,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize)]
 pub enum LoginResult {
+    #[serde(rename = "0")]
     Success,
+    #[serde(rename = "3")]
     InvalidCredentials,
+    #[serde(rename = "1")]
     MalformedRequest,
+    #[serde(untagged)]
     Other(BoxStr),
-}
-
-impl<'de> Deserialize<'de> for LoginResult {
-    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let raw = BoxStr::deserialize(deserializer)?;
-        Ok(match raw.as_ref() {
-            "0" => Self::Success,
-            "3" => Self::InvalidCredentials,
-            "1" => Self::MalformedRequest,
-            _ => Self::Other(raw),
-        })
-    }
 }
 
 #[derive(Debug, Deserialize)]
